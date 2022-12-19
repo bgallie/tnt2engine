@@ -1,8 +1,9 @@
 // This is free and unencumbered software released into the public domain.
 // See the UNLICENSE file for details.
 
-// Package tnt2engine - define TntEngine type and it's methods
 package tnt2engine
+
+// Define the bit operators used by tnt2engine
 
 // SetBit - set bit in a byte array
 func SetBit(ary []byte, bit uint) []byte {

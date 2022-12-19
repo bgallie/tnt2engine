@@ -1,8 +1,8 @@
 // This is free and unencumbered software released into the public domain.
 // See the UNLICENSE file for details.
-
-// Package tnt2engine - define TntEngine type and it's methods
 package tnt2engine
+
+// Define the Cryptor interface, constants, and variables used in tnt2engine
 
 import (
 	"bytes"
@@ -12,12 +12,12 @@ import (
 
 // Define constants needed for TNT2
 const (
-	BitsPerByte             = 8
-	CypherBlockSize         = 256 // bits
-	CypherBlockBytes        = CypherBlockSize / BitsPerByte
-	MaximumRotorSize        = 8192 // without the splice at the end.
-	NumberPermutationCycles = 4
-	RotorSizeBytes          = MaximumRotorSize / BitsPerByte
+	BitsPerByte             int = 8
+	CypherBlockSize         int = 256 // bits
+	CypherBlockBytes        int = CypherBlockSize / BitsPerByte
+	MaximumRotorSize        int = 8192 // without the splice at the end.
+	NumberPermutationCycles int = 4
+	RotorSizeBytes          int = MaximumRotorSize / BitsPerByte
 )
 
 var (
@@ -64,7 +64,7 @@ var (
 		{3, 0, 1, 2}, {3, 0, 2, 1}, {3, 1, 0, 2}, {3, 1, 2, 0}, {3, 2, 1, 0}, {3, 2, 0, 1}}
 
 	// Define the proforma rotors and permutator used to create the actual rotors and permutators to use.
-	Rotor1 = NewRotor(1783, 863, 1033, []byte{
+	Rotor1 = new(Rotor).New(1783, 863, 1033, []byte{
 		184, 25, 190, 250, 35, 11, 111, 218, 111, 1, 44, 59, 137, 12, 184, 22,
 		154, 226, 101, 88, 167, 109, 45, 92, 19, 164, 132, 233, 34, 133, 138, 222,
 		59, 49, 123, 208, 179, 248, 61, 216, 55, 59, 235, 57, 67, 172, 233, 232,
@@ -82,7 +82,7 @@ var (
 		12, 95, 253, 145, 133, 55, 237, 183, 0, 150, 157, 68, 6, 92, 11, 77,
 		241, 50, 172, 211, 182, 22, 174, 9, 82, 194, 116, 145, 66, 69, 111})
 
-	Rotor2 = NewRotor(1753, 1494, 1039, []byte{
+	Rotor2 = new(Rotor).New(1753, 1494, 1039, []byte{
 		100, 120, 105, 253, 78, 6, 70, 91, 136, 33, 73, 16, 15, 13, 174, 206,
 		97, 207, 186, 14, 141, 185, 228, 85, 161, 253, 190, 198, 234, 193, 63, 20,
 		63, 229, 90, 58, 254, 193, 63, 69, 156, 75, 113, 145, 167, 124, 26, 38,
@@ -100,7 +100,7 @@ var (
 		12, 140, 182, 16, 67, 146, 32, 30, 26, 92, 157, 195, 158, 117, 29, 26,
 		115, 201, 171, 66, 251, 125, 141, 213, 131, 127, 40, 102})
 
-	Permutator1 = NewPermutator([]int{43, 57, 73, 83}, []byte{
+	Permutator1 = new(Permutator).New([]int{43, 57, 73, 83}, []byte{
 		207, 252, 142, 205, 239, 35, 230, 62, 69, 94, 166, 89, 184, 81, 144, 120,
 		27, 167, 39, 224, 75, 243, 87, 99, 47, 105, 163, 123, 129, 225, 2, 242,
 		65, 43, 12, 113, 30, 102, 240, 78, 137, 109, 112, 210, 214, 118, 106, 22,
@@ -118,7 +118,7 @@ var (
 		114, 254, 135, 168, 7, 29, 159, 48, 40, 115, 143, 203, 215, 77, 18, 55,
 		56, 177, 100, 0, 173, 104, 248, 97, 74, 63, 233, 19, 64, 174, 153, 10})
 
-	Rotor3 = NewRotor(1721, 1250, 660, []byte{
+	Rotor3 = new(Rotor).New(1721, 1250, 660, []byte{
 		25, 134, 2, 219, 108, 110, 170, 11, 12, 129, 29, 172, 198, 2, 14, 255,
 		158, 7, 103, 114, 63, 69, 173, 156, 249, 147, 235, 203, 90, 200, 233, 73,
 		38, 137, 10, 93, 176, 253, 64, 85, 46, 136, 21, 220, 37, 109, 149, 169,
@@ -136,7 +136,7 @@ var (
 		2, 59, 88, 141, 5, 28, 254, 61, 15, 206, 228, 126, 138, 90, 57, 243,
 		39, 215, 151, 181, 144, 211, 147, 198})
 
-	Rotor4 = NewRotor(1741, 1009, 1513, []byte{
+	Rotor4 = new(Rotor).New(1741, 1009, 1513, []byte{
 		59, 155, 29, 153, 190, 106, 54, 89, 63, 156, 123, 112, 152, 24, 237, 200,
 		85, 31, 249, 221, 7, 186, 76, 48, 229, 63, 232, 43, 60, 224, 108, 113,
 		71, 154, 254, 136, 83, 102, 6, 108, 108, 138, 65, 104, 190, 98, 197, 120,
@@ -154,7 +154,7 @@ var (
 		38, 235, 135, 115, 15, 14, 19, 163, 29, 185, 234, 35, 191, 251, 64, 151,
 		9, 166, 252, 7, 125, 133, 7, 156, 45, 14})
 
-	Permutator2 = NewPermutator([]int{49, 51, 73, 83}, []byte{
+	Permutator2 = new(Permutator).New([]int{49, 51, 73, 83}, []byte{
 		248, 250, 32, 91, 122, 166, 115, 61, 178, 111, 37, 35, 82, 167, 157, 66,
 		22, 65, 47, 1, 195, 182, 190, 73, 19, 218, 237, 76, 140, 155, 18, 11,
 		30, 207, 105, 49, 230, 83, 10, 251, 52, 136, 99, 212, 108, 154, 113, 41,
@@ -172,7 +172,7 @@ var (
 		225, 126, 54, 36, 220, 208, 150, 117, 255, 221, 101, 69, 77, 110, 243, 206,
 		130, 59, 205, 242, 184, 164, 131, 12, 2, 119, 96, 171, 53, 68, 8, 145})
 
-	Rotor5 = NewRotor(1723, 1293, 1046, []byte{
+	Rotor5 = new(Rotor).New(1723, 1293, 1046, []byte{
 		59, 137, 3, 62, 80, 176, 170, 169, 12, 135, 154, 73, 218, 169, 34, 130,
 		71, 240, 156, 66, 122, 214, 138, 174, 35, 15, 210, 20, 0, 17, 47, 172,
 		227, 243, 160, 166, 101, 87, 0, 83, 16, 204, 69, 56, 249, 1, 107, 129,
@@ -190,7 +190,7 @@ var (
 		56, 212, 76, 210, 78, 21, 17, 60, 130, 231, 20, 210, 179, 86, 116, 29,
 		121, 144, 166, 0, 136, 120, 97, 5})
 
-	Rotor6 = NewRotor(1733, 1313, 1414, []byte{
+	Rotor6 = new(Rotor).New(1733, 1313, 1414, []byte{
 		141, 233, 47, 225, 230, 220, 229, 226, 34, 136, 160, 200, 162, 159, 148, 163,
 		157, 133, 38, 86, 25, 23, 18, 48, 5, 98, 112, 20, 37, 159, 82, 163,
 		209, 135, 40, 197, 152, 8, 255, 234, 149, 22, 158, 19, 235, 186, 173, 247,
@@ -250,6 +250,7 @@ func (cblk *CypherBlock) String() string {
 
 // Crypter interface
 type Crypter interface {
+	Update(*Rand)
 	SetIndex(*big.Int)
 	Index() *big.Int
 	ApplyF(*[CypherBlockBytes]byte) *[CypherBlockBytes]byte
@@ -260,6 +261,10 @@ type Crypter interface {
 // number of blocks that were encrypted.
 type Counter struct {
 	index *big.Int
+}
+
+func (cntr *Counter) Update(random *Rand) {
+	// Do nothing.S
 }
 
 // SetIndex - sets the initial index value
@@ -283,29 +288,25 @@ func (cntr *Counter) ApplyG(blk *[CypherBlockBytes]byte) *[CypherBlockBytes]byte
 	return blk
 }
 
-// SubBlock - subtracts (not XOR) the key from the data to be decrypted
+// SubBlock -  subtracts (not XOR) the key from the data to be decrypted
 func SubBlock(blk, key *[CypherBlockBytes]byte) *[CypherBlockBytes]byte {
 	var p int
-
 	for idx, val := range *blk {
 		p = p + int(val) - int(key[idx])
 		blk[idx] = byte(p & 0xFF)
 		p = p >> BitsPerByte
 	}
-
 	return blk
 }
 
 // AddBlock - adds (not XOR) the data to be encrypted with the key.
 func AddBlock(blk, key *[CypherBlockBytes]byte) *[CypherBlockBytes]byte {
 	var p int
-
 	for i, v := range *blk {
 		p += int(v) + int(key[i])
 		blk[i] = byte(p & 0xFF)
 		p >>= BitsPerByte
 	}
-
 	return blk
 }
 
@@ -328,7 +329,6 @@ func EncryptMachine(ecm Crypter, left chan CypherBlock) chan CypherBlock {
 			right <- inp
 		}
 	}(ecm, left, right)
-
 	return right
 }
 
@@ -344,12 +344,10 @@ func DecryptMachine(ecm Crypter, left chan CypherBlock) chan CypherBlock {
 				right <- inp
 				break
 			}
-
 			inp.CypherBlock = *ecm.ApplyG(&inp.CypherBlock)
 			right <- inp
 		}
 	}(ecm, left, right)
-
 	return right
 }
 
@@ -359,14 +357,12 @@ func createEncryptMachine(ecms ...Crypter) (left chan CypherBlock, right chan Cy
 		idx := 0
 		left = make(chan CypherBlock)
 		right = EncryptMachine(ecms[idx], left)
-
 		for idx++; idx < len(ecms); idx++ {
 			right = EncryptMachine(ecms[idx], right)
 		}
 	} else {
 		panic("you must give at least one encryption device!")
 	}
-
 	return
 }
 
@@ -376,13 +372,11 @@ func createDecryptMachine(ecms ...Crypter) (left chan CypherBlock, right chan Cy
 		idx := len(ecms) - 1
 		left = make(chan CypherBlock)
 		right = DecryptMachine(ecms[idx], left)
-
 		for idx--; idx >= 0; idx-- {
 			right = DecryptMachine(ecms[idx], right)
 		}
 	} else {
 		panic("you must give at least one decryption device!")
 	}
-
 	return
 }

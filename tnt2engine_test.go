@@ -1,7 +1,6 @@
 // This is free and unencumbered software released into the public domain.
 // See the UNLICENSE file for details.
 
-// Package tnt2engine - define TntEngine type and it's methods
 package tnt2engine
 
 import (
@@ -77,13 +76,13 @@ func TestTntEngine_CounterKey(t *testing.T) {
 			name:             "ttec1",
 			key:              "SecretKey",
 			proFormaFileName: "",
-			want:             "a24d7bb490d928b8c9bf74b509c31d5d1d79b2039c38e3252be0a857ac619be2",
+			want:             "ab2677fa2eecca36541ea85fd8d871203383b898bb025b8ec8fd5f24719eee1c",
 		},
 		{
 			name:             "ttec2",
 			key:              "SecretKey",
 			proFormaFileName: "test.proforma.json",
-			want:             "b636826859a309489817cd43c573944e9d3ce8c5afad1160beedcb2104dfce12",
+			want:             "9d468a888bf287c0cdc3008569b76c0cb7091b062f0b6209461436534392f95c",
 		},
 	}
 	for _, tt := range tests {
@@ -216,11 +215,15 @@ func TestTntEngine_EngineType(t *testing.T) {
 func TestTntEngine_MaximalStates(t *testing.T) {
 	var tntMachine TntEngine
 	tntMachine.Init([]byte("SecretKey"), "")
+	want, _ := new(big.Int).SetString("49757347268312618695711751903204439035", 10)
 	tests := []struct {
 		name string
 		want *big.Int
 	}{
-		// TODO: Add test cases.
+		{
+			name: "tteset1",
+			want: want,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -306,7 +309,7 @@ func Test_updateRotor(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			updateRotor(tt.args.r, tt.args.random)
+			tt.args.r.Update(tt.args.random)
 		})
 	}
 }
@@ -324,7 +327,7 @@ func Test_updatePermutator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			updatePermutator(tt.args.p, tt.args.random)
+			tt.args.p.Update(tt.args.random)
 		})
 	}
 }

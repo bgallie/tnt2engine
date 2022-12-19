@@ -1,8 +1,9 @@
 // This is free and unencumbered software released into the public domain.
 // See the UNLICENSE file for details.
 
-// Package tnt2engine - define TntEngine type and it's methods
 package tnt2engine
+
+// Define the rotor used by tnt2engine.
 
 import (
 	"bytes"
@@ -20,21 +21,36 @@ type Rotor struct {
 }
 
 // New - creates a new Rotor with the given size, start, step and rotor data.
-func NewRotor(size, start, step int, rotor []byte) *Rotor {
-	var r Rotor
+func (r *Rotor) New(size, start, step int, rotor []byte) *Rotor {
 	r.Start, r.Current = start, start
 	r.Size = size
 	r.Step = step
 	r.Rotor = rotor
 	r.sliceRotor()
-	return &r
+	return r
 }
 
 // Update - updates the given Rotor with a new size, start and step.
-func (r *Rotor) Update(size, start, step int) {
-	r.Start, r.Current = start, start
-	r.Size = size
+func (r *Rotor) Update(random *Rand) {
+	// Get size, start and step of the new rotor
+	rotorSize := RotorSizes[rotorSizes[rotorSizesIndex]]
+	rotorSizesIndex = (rotorSizesIndex + 1) % len(RotorSizes)
+	start := random.Intn(rotorSize)
+	step := random.Intn(rotorSize)
+	// blkCnt is the total number of bytes needed to hold rotorSize bits + a slice of 256 bits
+	blkCnt := (((rotorSize + CypherBlockSize + 7) / 8) + 31) / 32
+	// blkBytes is the number of bytes rotor r needs to increase to hold the new rotor.
+	blkBytes := (blkCnt * 32) - len(r.Rotor)
+	// Adjust the size of r.Rotor to match the new rotor size.
+	adjRotor := make([]byte, blkBytes)
+	r.Rotor = append(r.Rotor, adjRotor...)
+	// Fill the rotor with random data using TNT2 encryption to generate the
+	// random data to fill the rotor.
+	random.Read(r.Rotor)
+	r.Size = rotorSize
+	r.Current = r.Size
 	r.Step = step
+	r.Start = start
 	r.sliceRotor()
 }
 

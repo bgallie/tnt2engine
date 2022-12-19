@@ -3,6 +3,8 @@
 
 package tnt2engine
 
+// Define tests for cryptor.go
+
 import (
 	"math/big"
 	"reflect"
