@@ -3,7 +3,7 @@
 
 package tnt2engine
 
-// Define the tnt2engine tyep and it's methods
+// Define the tnt2engine type and it's methods
 
 import (
 	"bufio"
@@ -26,6 +26,7 @@ var (
 	rotorSizesIndex int
 	cycleSizes      []int
 	cycleSizesIndex int
+	jc1Key          *jc1.UberJc1
 )
 
 // TntEngine type defines the encryption/decryption machine (rotors and
@@ -112,7 +113,7 @@ func (e *TntEngine) MaximalStates() *big.Int {
 // the proForma rotors and permutators in complex way, updating the rotors and
 // permutators in place.
 func (e *TntEngine) Init(secret []byte, proFormaFileName string) {
-	jc1Key := jc1.NewUberJc1(secret)
+	jc1Key = jc1.NewUberJc1(secret)
 	// Create an ecryption machine based on the proForma rotors and permutators.
 	var pfmReader io.Reader = nil
 	if len(proFormaFileName) != 0 {
@@ -230,31 +231,29 @@ func createProFormaMachine(pfmReader io.Reader) *[]Crypter {
 		// Create the proforma encryption machine from the given proforma machine file.
 		// The layout of the machine is:
 		// 		rotor, rotor, permutator, rotor, rotor, permutator, rotor, rotor
-		var rotor1, rotor2, rotor3, rotor4, rotor5, rotor6 *Rotor
-		var permutator1, permutator2 *Permutator
-		newMachine[0] = rotor1
-		newMachine[1] = rotor2
-		newMachine[2] = permutator1
-		newMachine[3] = rotor3
-		newMachine[4] = rotor4
-		newMachine[5] = permutator2
-		newMachine[6] = rotor5
-		newMachine[7] = rotor6
+		newMachine[0] = new(Rotor)
+		newMachine[1] = new(Rotor)
+		newMachine[2] = new(Permutator)
+		newMachine[3] = new(Rotor)
+		newMachine[4] = new(Rotor)
+		newMachine[5] = new(Permutator)
+		newMachine[6] = new(Rotor)
+		newMachine[7] = new(Rotor)
 
-		for idx, machine := range newMachine {
+		for _, machine := range newMachine {
 			switch v := machine.(type) {
 			default:
 				fmt.Fprintf(os.Stderr, "Unknown machine: %v\n", v)
 			case *Rotor:
-				r := new(Rotor)
-				err := jDecoder.Decode(r)
+				// r := new(Rotor)
+				err := jDecoder.Decode(&machine)
 				checkFatal(err)
-				newMachine[idx] = r
+				// newMachine[cnt] = r
 			case *Permutator:
-				p := new(Permutator)
-				err := jDecoder.Decode(p)
+				// p := new(Permutator)
+				err := jDecoder.Decode(&machine)
 				checkFatal(err)
-				newMachine[idx] = p
+				// newMachine[cnt] = p
 			}
 		}
 	}

@@ -215,7 +215,7 @@ func TestTntEngine_EngineType(t *testing.T) {
 func TestTntEngine_MaximalStates(t *testing.T) {
 	var tntMachine TntEngine
 	tntMachine.Init([]byte("SecretKey"), "")
-	want, _ := new(big.Int).SetString("49757347268312618695711751903204439035", 10)
+	want, _ := new(big.Int).SetString("49101257188406090296051850365430624307", 10)
 	tests := []struct {
 		name string
 		want *big.Int
