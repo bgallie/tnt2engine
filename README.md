@@ -7,7 +7,7 @@ This project was created to allow the original tntengine project to be follow mo
 >__An Infinite Key Encryption System.__    
 [Dr. Dobbs Journal Volume 9, Number 94, 1984](https://archive.org/details/1984-08-dr-dobbs-journal/page/44/mode/2up)
 
-The version numbering for this project (v1.4.2) matches the version number of the original __tntengine__ project.  The list of changeds in this version are:
+The version numbering for this project (v1.4.2) matches the version number of the original __tntengine__ project.  The list of changes in the original __tntengine__ rolled into this version are:
 
 ___v.1.4.2___  
 This release updated/corrected comments and fixed the following:
@@ -21,12 +21,12 @@ This release updated/corrected comments and fixed the following:
 ___v1.4.1___  
 Change **tntengine.Rand.Read**  to only initialize the _Rand.blk_ with key used to store the next block count encrypted by UberJC1 on the first call to _Rand.Read()._  Subsequent encryption of _Rand.blk_ uses the results of the previous encryption of _Rand.blk_.
 
-___v1.4.0__  
+___v1.4.0___  
 1. This release of **tntengine** fixes an issue where permutator.SetIndex() did not update the current value of the cycles.
-2. The UberJC1 package is now only used to generate the key to store the next block count,
+2. TJC1 package is now only used to generate the key to store the next block count,
 3. The jc1Key is no longer stored as part the the TntEngine..
 4. Change **tntengine.Rand.Read**  to only initialize the _Rand.blk_ with key used to store the next block count on the first call to _Rand.Read()._  Subsequent encryption of _Rand.blk_ uses the results of the previous encryption of _Rand.blk_.
-5. All test in _rand_test.go_ will execute correctly when running all tests at once or when running each test individually.
+5. All test in _rand_test.go_ will now execute correctly when running all tests at once or when running each test individually.
 6. _Rand.NewRand()_ is now depreciated.  The _New()_ method of *Rand instance replaces it.
 7. Added new _Update(*Rand)_ method to the **Cryptor** interface.
 8. Added _rotor.New()_ (replacing _NewRotor()_) and _permutator.New()_ (replacing _NewPermutator()_).
