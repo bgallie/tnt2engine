@@ -1,6 +1,6 @@
 module tnt2engine
 
-go 1.19
+go 1.20
 
 require (
 	github.com/bgallie/jc1 v1.1.1
