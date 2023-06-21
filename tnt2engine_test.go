@@ -10,62 +10,60 @@ import (
 	"testing"
 )
 
-func TestTntEngine_Left(t *testing.T) {
-	var tntMachine TntEngine
-	tntMachine.Init([]byte("SecretKey"), "")
-	tntMachine.SetEngineType("E")
-	tntMachine.BuildCipherMachine()
+func TestTnt2Engine_Left(t *testing.T) {
+	var tnt2Machine Tnt2Engine
+	tnt2Machine.Init([]byte("SecretKey"), "")
+	tnt2Machine.SetEngineType("E")
+	tnt2Machine.BuildCipherMachine()
 	tests := []struct {
 		name string
-		want chan CypherBlock
+		want chan CipherBlock
 	}{
 		{
 			name: "ttel1",
-			want: tntMachine.left,
+			want: tnt2Machine.left,
 		},
 	}
 	for _, tt := range tests {
-		e := tntMachine
+		e := tnt2Machine
 		t.Run(tt.name, func(t *testing.T) {
 			if got := e.Left(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("TntEngine.Left() = %v, want %v", got, tt.want)
+				t.Errorf("Tnt2Engine.Left() = %v, want %v", got, tt.want)
 			}
 		})
 	}
-	var blk CypherBlock
-	tntMachine.left <- blk
-	<-tntMachine.right
+	tnt2Machine.CloseCipherMachine()
 }
 
-func TestTntEngine_Right(t *testing.T) {
-	var tntMachine TntEngine
-	tntMachine.Init([]byte("SecretKey"), "")
-	tntMachine.SetEngineType("E")
-	tntMachine.BuildCipherMachine()
+func TestTnt2Engine_Right(t *testing.T) {
+	var tnt2Machine Tnt2Engine
+	tnt2Machine.Init([]byte("SecretKey"), "")
+	tnt2Machine.SetEngineType("E")
+	tnt2Machine.BuildCipherMachine()
 	tests := []struct {
 		name string
-		want chan CypherBlock
+		want chan CipherBlock
 	}{
 		{
 			name: "tter1",
-			want: tntMachine.right,
+			want: tnt2Machine.right,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := tntMachine
+			e := tnt2Machine
 			if got := e.Right(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("TntEngine.Right() = %v, want %v", got, tt.want)
+				t.Errorf("Tnt2Engine.Right() = %v, want %v", got, tt.want)
 			}
 		})
 	}
-	var blk CypherBlock
-	tntMachine.left <- blk
-	<-tntMachine.right
+	var blk CipherBlock
+	tnt2Machine.left <- blk
+	<-tnt2Machine.right
 }
 
-func TestTntEngine_CounterKey(t *testing.T) {
-	var tntMachine TntEngine
+func TestTnt2Engine_CounterKey(t *testing.T) {
+	var tnt2Machine Tnt2Engine
 	tests := []struct {
 		name             string
 		key              string
@@ -87,19 +85,19 @@ func TestTntEngine_CounterKey(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tntMachine.Init([]byte(tt.key), tt.proFormaFileName)
-			if got := tntMachine.CounterKey(); got != tt.want {
-				t.Errorf("TntEngine.CounterKey() = %v, want %v", got, tt.want)
+			tnt2Machine.Init([]byte(tt.key), tt.proFormaFileName)
+			if got := tnt2Machine.CounterKey(); got != tt.want {
+				t.Errorf("Tnt2Engine.CounterKey() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestTntEngine_Index(t *testing.T) {
-	var tntMachine TntEngine
-	tntMachine.Init([]byte("SecretKey"), "")
+func TestTnt2Engine_Index(t *testing.T) {
+	var tnt2Machine Tnt2Engine
+	tnt2Machine.Init([]byte("SecretKey"), "")
 	iCnt, _ := new(big.Int).SetString("1234567890", 10)
-	tntMachine.SetIndex(iCnt)
+	tnt2Machine.SetIndex(iCnt)
 	tests := []struct {
 		name     string
 		wantCntr *big.Int
@@ -111,17 +109,17 @@ func TestTntEngine_Index(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := tntMachine
+			e := tnt2Machine
 			if gotCntr := e.Index(); !reflect.DeepEqual(gotCntr, tt.wantCntr) {
-				t.Errorf("TntEngine.Index() = %v, want %v", gotCntr, tt.wantCntr)
+				t.Errorf("Tnt2Engine.Index() = %v, want %v", gotCntr, tt.wantCntr)
 			}
 		})
 	}
 }
 
-func TestTntEngine_SetIndex(t *testing.T) {
-	var tntMachine TntEngine
-	tntMachine.Init([]byte("SecretKey"), "")
+func TestTnt2Engine_SetIndex(t *testing.T) {
+	var tnt2Machine Tnt2Engine
+	tnt2Machine.Init([]byte("SecretKey"), "")
 	iCnt, _ := new(big.Int).SetString("1234567890", 10)
 	type args struct {
 		iCnt *big.Int
@@ -139,18 +137,18 @@ func TestTntEngine_SetIndex(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := tntMachine
+			e := tnt2Machine
 			e.SetIndex(tt.args.iCnt)
 			if got := e.Index(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("TntEngine.Index() = %v, want %v", got, tt.want)
+				t.Errorf("Tnt2Engine.Index() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestTntEngine_SetEngineType(t *testing.T) {
-	var tntMachine TntEngine
-	tntMachine.Init([]byte("SecretKey"), "")
+func TestTnt2Engine_SetEngineType(t *testing.T) {
+	var tnt2Machine Tnt2Engine
+	tnt2Machine.Init([]byte("SecretKey"), "")
 	type args struct {
 		engineType string
 	}
@@ -165,18 +163,18 @@ func TestTntEngine_SetEngineType(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := tntMachine
+			e := tnt2Machine
 			e.SetEngineType(tt.args.engineType)
 			if got := e.engineType; got != tt.args.engineType {
-				t.Errorf("TntEngine.SetEngineType() = %v, want %v", got, tt.args.engineType)
+				t.Errorf("Tnt2Engine.SetEngineType() = %v, want %v", got, tt.args.engineType)
 			}
 		})
 	}
 }
 
-func TestTntEngine_Engine(t *testing.T) {
-	var tntMachine TntEngine
-	tntMachine.Init([]byte("SecretKey"), "")
+func TestTnt2Engine_Engine(t *testing.T) {
+	var tnt2Machine Tnt2Engine
+	tnt2Machine.Init([]byte("SecretKey"), "")
 	tests := []struct {
 		name string
 		want []Crypter
@@ -185,17 +183,17 @@ func TestTntEngine_Engine(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := tntMachine
+			e := tnt2Machine
 			if got := e.Engine(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("TntEngine.Engine() = %v, want %v", got, tt.want)
+				t.Errorf("Tnt2Engine.Engine() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestTntEngine_EngineType(t *testing.T) {
-	var tntMachine TntEngine
-	tntMachine.Init([]byte("SecretKey"), "")
+func TestTnt2Engine_EngineType(t *testing.T) {
+	var tnt2Machine Tnt2Engine
+	tnt2Machine.Init([]byte("SecretKey"), "")
 	tests := []struct {
 		name string
 		want string
@@ -204,17 +202,17 @@ func TestTntEngine_EngineType(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := tntMachine
+			e := tnt2Machine
 			if got := e.EngineType(); got != tt.want {
-				t.Errorf("TntEngine.EngineType() = %v, want %v", got, tt.want)
+				t.Errorf("Tnt2Engine.EngineType() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestTntEngine_MaximalStates(t *testing.T) {
-	var tntMachine TntEngine
-	tntMachine.Init([]byte("SecretKey"), "")
+func TestTnt2Engine_MaximalStates(t *testing.T) {
+	var tnt2Machine Tnt2Engine
+	tnt2Machine.Init([]byte("SecretKey"), "")
 	want, _ := new(big.Int).SetString("49101257188406090296051850365430624307", 10)
 	tests := []struct {
 		name string
@@ -227,17 +225,17 @@ func TestTntEngine_MaximalStates(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := tntMachine
+			e := tnt2Machine
 			if got := e.MaximalStates(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("TntEngine.MaximalStates() = %v, want %v", got, tt.want)
+				t.Errorf("Tnt2Engine.MaximalStates() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestTntEngine_Init(t *testing.T) {
-	var tntMachine TntEngine
-	tntMachine.Init([]byte("SecretKey"), "")
+func TestTnt2Engine_Init(t *testing.T) {
+	var tnt2Machine Tnt2Engine
+	tnt2Machine.Init([]byte("SecretKey"), "")
 	type args struct {
 		secret           []byte
 		proFormaFileName string
@@ -250,15 +248,15 @@ func TestTntEngine_Init(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := tntMachine
+			e := tnt2Machine
 			e.Init(tt.args.secret, tt.args.proFormaFileName)
 		})
 	}
 }
 
-func TestTntEngine_BuildCipherMachine(t *testing.T) {
-	var tntMachine TntEngine
-	tntMachine.Init([]byte("SecretKey"), "")
+func TestTnt2Engine_BuildCipherMachine(t *testing.T) {
+	var tnt2Machine Tnt2Engine
+	tnt2Machine.Init([]byte("SecretKey"), "")
 	tests := []struct {
 		name string
 	}{
@@ -266,7 +264,7 @@ func TestTntEngine_BuildCipherMachine(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := tntMachine
+			e := tnt2Machine
 			e.BuildCipherMachine()
 		})
 	}

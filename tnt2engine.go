@@ -29,35 +29,35 @@ var (
 	jc1Key          *jc1.UberJc1
 )
 
-// TntEngine type defines the encryption/decryption machine (rotors and
+// Tnt2Engine type defines the encryption/decryption machine (rotors and
 // permutators).
-type TntEngine struct {
+type Tnt2Engine struct {
 	engineType    string // "E)ncrypt" or "D)ecrypt"
 	engine        []Crypter
-	left, right   chan CypherBlock
+	left, right   chan CipherBlock
 	cntrKey       string
 	maximalStates *big.Int
 }
 
-// Left is a getter that returns the input channel for the TntEngine.
-func (e *TntEngine) Left() chan CypherBlock {
+// Left is a getter that returns the input channel for the Tnt2Engine.
+func (e *Tnt2Engine) Left() chan CipherBlock {
 	return e.left
 }
 
-// Right is a getter that returns the output channel for the TntEngine.
-func (e *TntEngine) Right() chan CypherBlock {
+// Right is a getter that returns the output channel for the Tnt2Engine.
+func (e *Tnt2Engine) Right() chan CipherBlock {
 	return e.right
 }
 
 // CounterKey is a getter that returns the SHAKE256 hash for the secret key.
 // This is used to set/retrieve that next block to use in encrypting data.
-func (e *TntEngine) CounterKey() string {
+func (e *Tnt2Engine) CounterKey() string {
 	return e.cntrKey
 }
 
 // Index is a getter that returns the block number of the next block to be
 // encrypted.
-func (e *TntEngine) Index() (cntr *big.Int) {
+func (e *Tnt2Engine) Index() (cntr *big.Int) {
 	if len(e.engine) != 0 {
 		machine := e.engine[len(e.engine)-1]
 		switch machine.(type) {
@@ -72,47 +72,47 @@ func (e *TntEngine) Index() (cntr *big.Int) {
 }
 
 // SetIndex is a setter function that sets the rotors and permutators so the
-// the TntEngine will be ready start encrypting/decrypting at the correct block.
-func (e *TntEngine) SetIndex(iCnt *big.Int) {
+// the Tnt2Engine will be ready start encrypting/decrypting at the correct block.
+func (e *Tnt2Engine) SetIndex(iCnt *big.Int) {
 	for _, machine := range e.engine {
 		machine.SetIndex(new(big.Int).Set(iCnt))
 	}
 }
 
 // SetEngineType is a setter function that sets the engineType [D)ecrypt or E)crypt]
-// of the TntEngine.
-func (e *TntEngine) SetEngineType(engineType string) {
+// of the Tnt2Engine.
+func (e *Tnt2Engine) SetEngineType(engineType string) {
 	switch string(strings.TrimSpace(engineType)[0]) {
 	case "d", "D":
 		e.engineType = "D"
 	case "e", "E":
 		e.engineType = "E"
 	default:
-		log.Fatalf("Missing or incorrect TntEngine engineType: [%s]", engineType)
+		log.Fatalf("Missing or incorrect Tnt2Engine engineType: [%s]", engineType)
 	}
 }
 
 // Engine is a getter function that returns a slice containing the rotors and
-// permutators for the TntEngine.
-func (e *TntEngine) Engine() []Crypter {
+// permutators for the Tnt2Engine.
+func (e *Tnt2Engine) Engine() []Crypter {
 	return e.engine
 }
 
 // EngineType is a getter function that returns the engine type of the TntMachine.
-func (e *TntEngine) EngineType() string {
+func (e *Tnt2Engine) EngineType() string {
 	return e.engineType
 }
 
 // MaximalStates is a getter function that returns maximum number of states that the
 // engine can be in before repeating.
-func (e *TntEngine) MaximalStates() *big.Int {
+func (e *Tnt2Engine) MaximalStates() *big.Int {
 	return e.maximalStates
 }
 
-// Init will initialize the TntEngine generating new Rotors and Permutators using
+// Init will initialize the Tnt2Engine generating new Rotors and Permutators using
 // the proForma rotors and permutators in complex way, updating the rotors and
 // permutators in place.
-func (e *TntEngine) Init(secret []byte, proFormaFileName string) {
+func (e *Tnt2Engine) Init(secret []byte, proFormaFileName string) {
 	jc1Key = jc1.NewUberJc1(secret)
 	// Create an ecryption machine based on the proForma rotors and permutators.
 	var pfmReader io.Reader = nil
@@ -128,9 +128,8 @@ func (e *TntEngine) Init(secret []byte, proFormaFileName string) {
 	// the count of blocks already encrypted to use as a starting point for the
 	// encryption of the next message.
 	k := make([]byte, 1024)
-	blk := *new(CypherBlock)
-	blk.Length = 32
-	h := blk.CypherBlock[:]
+	blk := make(CipherBlock, CipherBlockBytes)
+	h := blk[:]
 	d := sha3.NewShake256()
 	d.Write(jc1Key.XORKeyStream(k))
 	d.Read(h)
@@ -140,7 +139,7 @@ func (e *TntEngine) Init(secret []byte, proFormaFileName string) {
 	e.SetIndex(iCnt)
 	e.left <- blk
 	blk = <-e.right
-	e.cntrKey = hex.EncodeToString(blk.CypherBlock[:])
+	e.cntrKey = hex.EncodeToString(blk[:])
 	e.SetIndex(BigZero)
 	// Create a random number function [func(max int) int] that uses psudo-
 	// random data generated the proforma encryption machine.
@@ -170,7 +169,7 @@ func (e *TntEngine) Init(secret []byte, proFormaFileName string) {
 		}
 	}
 	// Now that we have created the new rotors and permutators from the proform
-	// machine, populate the TntEngine with them.
+	// machine, populate the Tnt2Engine with them.
 	newMachine := make([]Crypter, 9)
 	machineOrder := random.Perm(len(e.engine))
 	for idx, val := range machineOrder {
@@ -182,18 +181,27 @@ func (e *TntEngine) Init(secret []byte, proFormaFileName string) {
 }
 
 // BuildCiperMachine will create a "machine" to encrypt or decrypt data sent to the
-// left channel and outputed on the right channel for the TntEngine.  The engineType
+// left channel and outputed on the right channel for the Tnt2Engine.  The engineType
 // determines weither a encrypt machine or a decrypt machine will be created.
-func (e *TntEngine) BuildCipherMachine() {
+func (e *Tnt2Engine) BuildCipherMachine() {
 	switch e.engineType {
 	case "D":
 		e.left, e.right = createDecryptMachine(e.engine...)
 	case "E":
 		e.left, e.right = createEncryptMachine(e.engine...)
 	default:
-		log.Fatalf("Missing or incorrect TntEngine engineType: [%s]", e.engineType)
+		log.Fatalf("Missing or incorrect Tnt2Engine engineType: [%s]", e.engineType)
 
 	}
+}
+
+// CloseCipherMachine will close down the cipher machine by exiting the go function
+// that performs the encryption/decryption using the individual rotors/permutators.
+// This is done by passing the CipherMachine a CypherBlock with a length of zero (0).
+func (e *Tnt2Engine) CloseCipherMachine() {
+	blk := new(CipherBlock)
+	e.Left() <- *blk
+	<-e.Right()
 }
 
 // createProFormaMachine initializes the proForma machine used to create the
@@ -216,7 +224,7 @@ func createProFormaMachine(pfmReader io.Reader) *[]Crypter {
 		// 		rotor, rotor, permutator, rotor, rotor, permutator, rotor, rotor
 
 		// Create the ProFormaMachine by making a copy of the hardcoded proforma rotors and permutators.
-		// This resolves an issue running tests where TntEngine.Init() is called multiple times which
+		// This resolves an issue running tests where Tnt2Engine.Init() is called multiple times which
 		// caused a failure on the second call.
 		newMachine[0] = new(Rotor).New(Rotor1.Size, Rotor1.Start, Rotor1.Step, append([]byte(nil), Rotor1.Rotor...))
 		newMachine[1] = new(Rotor).New(Rotor2.Size, Rotor2.Start, Rotor2.Step, append([]byte(nil), Rotor2.Rotor...))

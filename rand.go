@@ -13,25 +13,25 @@ import (
 	"reflect"
 )
 
-var emptyBlk CypherBlock
+var emptyBlk CipherBlock
 
 type Rand struct {
-	tntMachine *TntEngine
-	idx        int
-	blk        CypherBlock
+	tnt2Machine *Tnt2Engine
+	idx         int
+	blk         CipherBlock
 }
 
-func NewRand(src *TntEngine) *Rand {
+func NewRand(src *Tnt2Engine) *Rand {
 	rand := new(Rand)
-	rand.tntMachine = src
-	rand.idx = CypherBlockBytes
+	rand.tnt2Machine = src
+	rand.idx = CipherBlockBytes
 	fmt.Fprintln(os.Stderr, "WARNING: rand.NewRand() is deprecated.  Use Rand.New() instead")
 	return rand
 }
 
-func (rnd *Rand) New(src *TntEngine) *Rand {
-	rnd.tntMachine = src
-	rnd.idx = CypherBlockBytes
+func (rnd *Rand) New(src *Tnt2Engine) *Rand {
+	rnd.tnt2Machine = src
+	rnd.idx = CipherBlockBytes
 	return rnd
 }
 
@@ -97,29 +97,29 @@ func (rnd *Rand) Perm(n int) []int {
 func (rnd *Rand) Read(p []byte) (n int, err error) {
 	err = nil
 	if reflect.DeepEqual(rnd.blk, emptyBlk) {
-		cntrKeyBytes, _ := hex.DecodeString(rnd.tntMachine.cntrKey)
+		cntrKeyBytes, _ := hex.DecodeString(rnd.tnt2Machine.cntrKey)
 		cntrKeyBytes = jc1Key.XORKeyStream(cntrKeyBytes)
-		rnd.blk.Length = int8(CypherBlockBytes)
-		_ = copy(rnd.blk.CypherBlock[:], cntrKeyBytes)
+		rnd.blk = make(CipherBlock, CipherBlockBytes)
+		_ = copy(rnd.blk[:], cntrKeyBytes)
 	}
 	p = p[:0]
-	left := rnd.tntMachine.Left()
-	right := rnd.tntMachine.Right()
+	left := rnd.tnt2Machine.Left()
+	right := rnd.tnt2Machine.Right()
 	for {
-		if rnd.idx >= CypherBlockBytes {
+		if rnd.idx >= CipherBlockBytes {
 			left <- rnd.blk
 			rnd.blk = <-right
 			rnd.idx = 0
 		}
-		leftInBlk := len(rnd.blk.CypherBlock) - rnd.idx
+		leftInBlk := len(rnd.blk) - rnd.idx
 		remaining := cap(p) - len(p)
-		if remaining >= leftInBlk {
-			p = append(p, rnd.blk.CypherBlock[rnd.idx:]...)
-			rnd.idx += leftInBlk
-		} else {
-			p = append(p, rnd.blk.CypherBlock[rnd.idx:rnd.idx+remaining]...)
+		if remaining < leftInBlk {
+			p = append(p, rnd.blk[rnd.idx:rnd.idx+remaining]...)
 			rnd.idx += remaining
 			break
+		} else {
+			p = append(p, rnd.blk[rnd.idx:]...)
+			rnd.idx += leftInBlk
 		}
 	}
 

@@ -31,7 +31,7 @@ func (r *Rotor) New(size, start, step int, rotor []byte) *Rotor {
 }
 
 // Update - updates the given Rotor with a new size, start, step and (psudo)
-//		  - random rotor data.
+//   - random rotor data.
 func (r *Rotor) Update(random *Rand) {
 	// Get size, start and step of the new rotor
 	rotorSize := RotorSizes[rotorSizes[rotorSizesIndex]]
@@ -39,7 +39,7 @@ func (r *Rotor) Update(random *Rand) {
 	start := random.Intn(rotorSize)
 	step := random.Intn(rotorSize-1) + 1
 	// byteCnt is the total number of bytes needed to hold rotorSize bits + a slice of 256 bits
-	byteCnt := ((rotorSize + CypherBlockSize + 7) / 8)
+	byteCnt := ((rotorSize + CipherBlockSize + 7) / 8)
 	// blkBytes is the number of bytes rotor r needs to increase to hold the new rotor.
 	blkBytes := byteCnt - len(r.Rotor)
 	// Adjust the size of r.Rotor to match the new rotor size.
@@ -89,14 +89,14 @@ func (r *Rotor) Index() *big.Int {
 	return nil
 }
 
-// ApplyF - encrypts the given block of data.
-func (r *Rotor) ApplyF(blk *[CypherBlockBytes]byte) *[CypherBlockBytes]byte {
-	var res [CypherBlockBytes]byte
-	ress := res[:]
+// Get the number of bytes in "blk" from the given rotor.
+func (r *Rotor) getRotorBlock(blk CipherBlock) CipherBlock {
+	ress := make([]byte, len(blk))
 	rotor := r.Rotor
 	idx := r.Current
+	blockSize := len(blk) * BitsPerByte
 
-	for cnt := 0; cnt < CypherBlockSize; cnt++ {
+	for cnt := 0; cnt < blockSize; cnt++ {
 		if GetBit(rotor, uint(idx)) {
 			SetBit(ress, uint(cnt))
 		}
@@ -105,26 +105,17 @@ func (r *Rotor) ApplyF(blk *[CypherBlockBytes]byte) *[CypherBlockBytes]byte {
 	}
 
 	r.Current = (r.Current + r.Step) % r.Size
-	return AddBlock(blk, &res)
+	return ress
+}
+
+// ApplyF - encrypts the given block of data.
+func (r *Rotor) ApplyF(blk CipherBlock) CipherBlock {
+	return AddBlock(blk, r.getRotorBlock(blk))
 }
 
 // ApplyG - decrypts the given block of data
-func (r *Rotor) ApplyG(blk *[CypherBlockBytes]byte) *[CypherBlockBytes]byte {
-	var res [CypherBlockBytes]byte
-	ress := res[:]
-	rotor := r.Rotor[:]
-	idx := r.Current
-
-	for cnt := 0; cnt < CypherBlockSize; cnt++ {
-		if GetBit(rotor, uint(idx)) {
-			SetBit(ress, uint(cnt))
-		}
-
-		idx++
-	}
-
-	r.Current = (r.Current + r.Step) % r.Size
-	return SubBlock(blk, &res)
+func (r *Rotor) ApplyG(blk CipherBlock) CipherBlock {
+	return SubBlock(blk, r.getRotorBlock(blk))
 }
 
 // String - converts a Rotor to a string representation of the Rotor.

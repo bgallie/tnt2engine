@@ -13,8 +13,8 @@ import (
 // Define constants needed for tnt2engine
 const (
 	BitsPerByte             int = 8
-	CypherBlockSize         int = 256 // bits
-	CypherBlockBytes        int = CypherBlockSize / BitsPerByte
+	CipherBlockSize         int = 256 // bits
+	CipherBlockBytes        int = CipherBlockSize / BitsPerByte
 	NumberPermutationCycles int = 4
 )
 
@@ -213,21 +213,21 @@ var (
 	BigOne = big.NewInt(1)
 )
 
-// CypherBlock is the data processed by the crypters (rotors and permutators).
+// CipherBlock is the data processed by the crypters (rotors and permutators).
 // It consistes of the length in bytes to process and the (32 bytes of) data to
 // process.
-type CypherBlock struct {
-	Length      int8
-	CypherBlock [CypherBlockBytes]byte
-}
+type CipherBlock []byte
 
-// String formats a string representing the CypherBlock.
-func (cblk *CypherBlock) String() string {
+// String formats a string representing the CipherBlock.
+func (cblk CipherBlock) String() string {
 	var output bytes.Buffer
-	output.WriteString("CypherBlock: ")
-	output.WriteString(fmt.Sprintf("\t     Length: %d\n", cblk.Length))
-	output.WriteString(fmt.Sprintf("\tCypherBlock:\t% X\n", cblk.CypherBlock[0:16]))
-	output.WriteString(fmt.Sprintf("\t\t\t% X", cblk.CypherBlock[16:]))
+	blk := make([]byte, CipherBlockBytes)
+	_ = copy(blk, cblk)
+	output.WriteString("CipherBlock:")
+	output.WriteString(fmt.Sprintf("\t     Length: %d\n", len(cblk)))
+	output.WriteString(fmt.Sprintf("            \t   Capacity: %d\n", cap(cblk)))
+	output.WriteString(fmt.Sprintf("            \t       Data:\t% X\n", blk[0:16]))
+	output.WriteString(fmt.Sprintf("            \t\t\t% X", blk[16:]))
 	return output.String()
 }
 
@@ -236,8 +236,8 @@ type Crypter interface {
 	Update(*Rand)
 	SetIndex(*big.Int)
 	Index() *big.Int
-	ApplyF(*[CypherBlockBytes]byte) *[CypherBlockBytes]byte
-	ApplyG(*[CypherBlockBytes]byte) *[CypherBlockBytes]byte
+	ApplyF(CipherBlock) CipherBlock
+	ApplyG(CipherBlock) CipherBlock
 }
 
 // Counter is a crypter that does not encrypt/decrypt any data but counts the
@@ -261,20 +261,20 @@ func (cntr *Counter) Index() *big.Int {
 }
 
 // ApplyF - increments the counter for each block that is encrypted.
-func (cntr *Counter) ApplyF(blk *[CypherBlockBytes]byte) *[CypherBlockBytes]byte {
+func (cntr *Counter) ApplyF(blk CipherBlock) CipherBlock {
 	cntr.index.Add(cntr.index, BigOne)
 	return blk
 }
 
 // ApplyG - this function does nothing for a Counter during decryption.
-func (cntr *Counter) ApplyG(blk *[CypherBlockBytes]byte) *[CypherBlockBytes]byte {
+func (cntr *Counter) ApplyG(blk CipherBlock) CipherBlock {
 	return blk
 }
 
 // SubBlock -  subtracts (not XOR) the key from the data to be decrypted
-func SubBlock(blk, key *[CypherBlockBytes]byte) *[CypherBlockBytes]byte {
+func SubBlock(blk, key CipherBlock) CipherBlock {
 	var p int
-	for idx, val := range *blk {
+	for idx, val := range blk {
 		p = p + int(val) - int(key[idx])
 		blk[idx] = byte(p & 0xFF)
 		p = p >> BitsPerByte
@@ -283,9 +283,9 @@ func SubBlock(blk, key *[CypherBlockBytes]byte) *[CypherBlockBytes]byte {
 }
 
 // AddBlock - adds (not XOR) the data to be encrypted with the key.
-func AddBlock(blk, key *[CypherBlockBytes]byte) *[CypherBlockBytes]byte {
+func AddBlock(blk, key CipherBlock) CipherBlock {
 	var p int
-	for i, v := range *blk {
+	for i, v := range blk {
 		p += int(v) + int(key[i])
 		blk[i] = byte(p & 0xFF)
 		p >>= BitsPerByte
@@ -295,20 +295,20 @@ func AddBlock(blk, key *[CypherBlockBytes]byte) *[CypherBlockBytes]byte {
 
 // EncryptMachine - set up a rotor, permutator, or counter to encrypt a block
 // read from the left (input channel) and send it out on the right (output channel)
-func EncryptMachine(ecm Crypter, left chan CypherBlock) chan CypherBlock {
+func EncryptMachine(ecm Crypter, left chan CipherBlock) chan CipherBlock {
 	if ecm == nil {
 		panic("ecm is nil")
 	}
-	right := make(chan CypherBlock)
-	go func(ecm Crypter, left chan CypherBlock, right chan CypherBlock) {
+	right := make(chan CipherBlock)
+	go func(ecm Crypter, left chan CipherBlock, right chan CipherBlock) {
 		defer close(right)
 		for {
 			inp := <-left
-			if inp.Length <= 0 {
+			if len(inp) <= 0 {
 				right <- inp
 				break
 			}
-			inp.CypherBlock = *ecm.ApplyF(&inp.CypherBlock)
+			inp = ecm.ApplyF(inp)
 			right <- inp
 		}
 	}(ecm, left, right)
@@ -317,17 +317,17 @@ func EncryptMachine(ecm Crypter, left chan CypherBlock) chan CypherBlock {
 
 // DecryptMachine - set up a rotor, permutator, or counter to decrypt a block
 // read from the left (input channel) and send it out on the right (output channel)
-func DecryptMachine(ecm Crypter, left chan CypherBlock) chan CypherBlock {
-	right := make(chan CypherBlock)
-	go func(ecm Crypter, left chan CypherBlock, right chan CypherBlock) {
+func DecryptMachine(ecm Crypter, left chan CipherBlock) chan CipherBlock {
+	right := make(chan CipherBlock)
+	go func(ecm Crypter, left chan CipherBlock, right chan CipherBlock) {
 		defer close(right)
 		for {
 			inp := <-left
-			if inp.Length <= 0 {
+			if len(inp) <= 0 {
 				right <- inp
 				break
 			}
-			inp.CypherBlock = *ecm.ApplyG(&inp.CypherBlock)
+			inp = ecm.ApplyG(inp)
 			right <- inp
 		}
 	}(ecm, left, right)
@@ -335,13 +335,14 @@ func DecryptMachine(ecm Crypter, left chan CypherBlock) chan CypherBlock {
 }
 
 // CreateEncryptMachine - Chain the encryption machines together, using channels to pass
-//						  the data to be encrypted to the individual encryption machines.
-//						  The data is entered in the 'left' channel and the encrypted data
-//						  is read from the 'right' channel.
-func createEncryptMachine(ecms ...Crypter) (left chan CypherBlock, right chan CypherBlock) {
+//
+//	the data to be encrypted to the individual encryption machines.
+//	The data is entered in the 'left' channel and the encrypted data
+//	is read from the 'right' channel.
+func createEncryptMachine(ecms ...Crypter) (left chan CipherBlock, right chan CipherBlock) {
 	if ecms != nil {
 		idx := 0
-		left = make(chan CypherBlock)
+		left = make(chan CipherBlock)
 		right = EncryptMachine(ecms[idx], left)
 		for idx++; idx < len(ecms); idx++ {
 			right = EncryptMachine(ecms[idx], right)
@@ -353,13 +354,14 @@ func createEncryptMachine(ecms ...Crypter) (left chan CypherBlock, right chan Cy
 }
 
 // CreateDecryptMachine - Chain the decryption machines together (in reverse order), using
-//						  channels to pass the data to be decrypted to the individual
-//						  decryption machines.  The encrypted data is entered in the 'left'
-//						  channel and the plaintext data is read from the 'right' channel.
-func createDecryptMachine(ecms ...Crypter) (left chan CypherBlock, right chan CypherBlock) {
+//
+//	channels to pass the data to be decrypted to the individual
+//	decryption machines.  The encrypted data is entered in the 'left'
+//	channel and the plaintext data is read from the 'right' channel.
+func createDecryptMachine(ecms ...Crypter) (left chan CipherBlock, right chan CipherBlock) {
 	if ecms != nil {
 		idx := len(ecms) - 1
-		left = make(chan CypherBlock)
+		left = make(chan CipherBlock)
 		right = DecryptMachine(ecms[idx], left)
 		for idx--; idx >= 0; idx-- {
 			right = DecryptMachine(ecms[idx], right)
