@@ -11,6 +11,21 @@ import (
 	"math/big"
 )
 
+var (
+	// RotorSizes is an array of possible rotor sizes.  It consists of prime
+	// numbers less than 8192 to ensure that the rotor sizes are realitivly prime.
+	// The rotor sizes selected from this list will maximizes the number of unique
+	// states the rotors can take.  The number of unique states range from
+	// 183,599,058,301,611,293,854,881 to 297,245,983,088,018,794,170,091
+	RotorSizes = [...]int{
+		7823, 7829, 7841, 7853, 7867, 7873, 7877, 7879, 7883, 7901,
+		7907, 7919, 7927, 7933, 7937, 7949, 7951, 7963, 7993, 8009,
+		8011, 8017, 8039, 8053, 8059, 8069, 8081, 8087, 8089, 8093,
+		8101, 8111, 8117, 8123, 8147, 8161, 8167, 8171, 8179, 8191}
+	rotorSizes      []int
+	rotorSizesIndex int
+)
+
 // Rotor - the type of the TNT2 rotor
 type Rotor struct {
 	Size    int    // the size in bits for this rotor
@@ -20,7 +35,7 @@ type Rotor struct {
 	Rotor   []byte // the rotor
 }
 
-// New - creates a new Rotor with the given size, start, step and rotor data.
+// New - initializes a new Rotor with the given size, start, step and rotor data.
 func (r *Rotor) New(size, start, step int, rotor []byte) *Rotor {
 	r.Start, r.Current = start, start
 	r.Size = size

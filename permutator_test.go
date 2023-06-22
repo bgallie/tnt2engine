@@ -25,7 +25,7 @@ func TestNewPermutator(t *testing.T) {
 			for idx, val := range Permutator1.Cycles {
 				cycles[idx] = val.Length
 			}
-			if got := new(Permutator).New(cycles, Permutator1.Randp); !reflect.DeepEqual(got, tt.want) {
+			if got := new(Permutator).New(cycles, append([]byte(nil), Permutator1.Randp...)); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewPermutator() = %v, want %v", got, tt.want)
 			}
 		})
@@ -46,23 +46,23 @@ func TestPermutator_Update(t *testing.T) {
 	}{
 		{
 			name: "tpu1",
-			want: new(Permutator).New([]int{53, 83, 47, 73}, []byte{
-				86, 44, 217, 181, 255, 60, 56, 251, 210, 193, 219, 169, 113, 15, 21, 166,
-				249, 54, 184, 2, 155, 66, 231, 187, 191, 108, 172, 243, 197, 204, 179, 97,
-				104, 147, 114, 79, 215, 65, 49, 80, 107, 77, 190, 222, 218, 118, 228, 5,
-				11, 9, 235, 203, 150, 74, 75, 25, 41, 199, 98, 174, 55, 236, 176, 221,
-				227, 30, 135, 43, 39, 252, 106, 241, 103, 138, 122, 132, 42, 152, 157, 139,
-				202, 209, 242, 205, 6, 47, 90, 31, 225, 229, 160, 93, 234, 180, 156, 248,
-				33, 92, 173, 182, 10, 244, 208, 214, 183, 216, 220, 34, 123, 240, 53, 127,
-				4, 254, 22, 3, 83, 35, 105, 165, 59, 84, 14, 40, 148, 124, 167, 23,
-				130, 250, 129, 72, 70, 140, 171, 50, 143, 201, 207, 119, 68, 158, 212, 64,
-				85, 136, 111, 196, 16, 36, 206, 253, 73, 137, 101, 194, 95, 27, 162, 238,
-				226, 7, 8, 91, 67, 19, 213, 94, 24, 211, 87, 32, 224, 29, 186, 38,
-				18, 116, 46, 100, 159, 52, 141, 198, 142, 121, 128, 237, 125, 69, 117, 246,
-				133, 153, 61, 149, 109, 120, 188, 88, 195, 115, 17, 112, 48, 200, 81, 99,
-				58, 37, 154, 76, 134, 62, 57, 28, 26, 96, 82, 145, 78, 192, 12, 51,
-				185, 168, 223, 131, 0, 189, 71, 239, 245, 247, 163, 89, 170, 230, 177, 175,
-				20, 161, 164, 178, 13, 126, 232, 45, 1, 146, 233, 144, 151, 63, 110, 102}),
+			want: new(Permutator).New([]int{73, 83, 53, 47}, []byte{
+				93, 103, 99, 171, 14, 194, 90, 169, 124, 172, 219, 228, 47, 193, 110, 87,
+				54, 31, 141, 109, 3, 26, 16, 249, 89, 208, 95, 227, 66, 229, 137, 23,
+				220, 148, 40, 139, 50, 239, 100, 243, 127, 107, 238, 160, 18, 33, 122, 231,
+				45, 13, 204, 118, 130, 173, 25, 43, 15, 247, 88, 143, 234, 49, 74, 1,
+				244, 134, 190, 61, 131, 92, 9, 191, 112, 165, 158, 214, 177, 35, 17, 81,
+				248, 115, 222, 140, 37, 205, 230, 179, 38, 113, 5, 123, 97, 63, 84, 138,
+				98, 59, 197, 156, 105, 29, 69, 200, 106, 236, 159, 83, 255, 202, 176, 24,
+				126, 166, 53, 41, 253, 136, 147, 254, 128, 28, 245, 129, 144, 196, 198, 116,
+				76, 58, 192, 32, 48, 152, 30, 94, 21, 51, 135, 186, 161, 19, 62, 0,
+				195, 44, 73, 250, 85, 117, 72, 218, 91, 203, 241, 145, 162, 108, 96, 8,
+				46, 10, 154, 20, 101, 215, 34, 153, 120, 216, 155, 174, 55, 188, 65, 114,
+				67, 146, 111, 75, 64, 119, 125, 170, 82, 232, 167, 224, 142, 233, 150, 209,
+				182, 39, 184, 240, 187, 149, 70, 251, 2, 221, 235, 80, 213, 225, 226, 183,
+				4, 246, 181, 22, 12, 57, 217, 68, 199, 175, 189, 168, 207, 7, 121, 42,
+				78, 206, 211, 132, 252, 212, 79, 71, 11, 223, 104, 180, 185, 178, 201, 52,
+				157, 36, 133, 164, 242, 60, 56, 151, 210, 102, 86, 237, 27, 6, 163, 77}),
 		},
 	}
 	for _, tt := range tests {
@@ -113,7 +113,7 @@ func TestPermutator_nextState(t *testing.T) {
 			for idx, val := range Permutator1.Cycles {
 				cycles[idx] = val.Length
 			}
-			p := new(Permutator).New(cycles, Permutator1.Randp)
+			p := new(Permutator).New(cycles, append([]byte(nil), Permutator1.Randp...))
 			p.nextState()
 			if p.bitPerm != tt.want {
 				t.Errorf("p.bitPerm = %v, want %v", p.bitPerm, tt.want)
@@ -161,7 +161,7 @@ func TestPermutator_SetIndex(t *testing.T) {
 			for idx, val := range Permutator1.Cycles {
 				cycles[idx] = val.Length
 			}
-			p := new(Permutator).New(cycles, Permutator1.Randp)
+			p := new(Permutator).New(cycles, append([]byte(nil), Permutator1.Randp...))
 			p.SetIndex(tt.args.idx)
 			if p.bitPerm != tt.want {
 				t.Errorf("p.bitPerm = %v, want %v", p.bitPerm, tt.want)
@@ -182,9 +182,37 @@ func TestPermutator_Index(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := Permutator1
+			cycles := make([]int, len(Permutator1.Cycles))
+			for idx, val := range Permutator1.Cycles {
+				cycles[idx] = val.Length
+			}
+			p := new(Permutator).New(cycles, append([]byte(nil), Permutator1.Randp...))
 			if got := p.Index(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Permutator.Index() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestPermutator_MaximalStates(t *testing.T) {
+	tests := []struct {
+		name string
+		want int
+	}{
+		{
+			name: "tpi1",
+			want: 14850609,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cycles := make([]int, len(Permutator1.Cycles))
+			for idx, val := range Permutator1.Cycles {
+				cycles[idx] = val.Length
+			}
+			p := new(Permutator).New(cycles, append([]byte(nil), Permutator1.Randp...))
+			if p.MaximalStates != tt.want {
+				t.Errorf("Permutator.MaximalStates = %d, want %d", p.MaximalStates, tt.want)
 			}
 		})
 	}
@@ -215,7 +243,11 @@ func TestPermutator_ApplyF(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := Permutator1
+			cycles := make([]int, len(Permutator1.Cycles))
+			for idx, val := range Permutator1.Cycles {
+				cycles[idx] = val.Length
+			}
+			p := new(Permutator).New(cycles, append([]byte(nil), Permutator1.Randp...))
 			if got := p.ApplyF(tt.args.blk); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Permutator.ApplyF() = %v, want %v", got, tt.want)
 			}
@@ -224,35 +256,37 @@ func TestPermutator_ApplyF(t *testing.T) {
 }
 
 func TestPermutator_ApplyG(t *testing.T) {
-	type fields struct {
-		CurrentState  int
-		MaximalStates int
-		Cycles        []Cycle
-		Randp         []byte
-		bitPerm       [CipherBlockSize]byte
-	}
 	type args struct {
 		blk CipherBlock
 	}
 	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   CipherBlock
+		name string
+		args args
+		want CipherBlock
 	}{
-		// TODO: Add test cases.
+		{
+			name: "tpaf1",
+			args: args{
+				[]byte{
+					209, 217, 128, 24, 115, 4, 114, 33, 6, 18, 17, 204, 16, 160, 173, 86,
+					133, 128, 48, 33, 152, 233, 34, 224, 3, 136, 162, 192, 32, 5, 2, 4,
+				},
+			},
+			want: []byte{
+				1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+				17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := &Permutator{
-				CurrentState:  tt.fields.CurrentState,
-				MaximalStates: tt.fields.MaximalStates,
-				Cycles:        tt.fields.Cycles,
-				Randp:         tt.fields.Randp,
-				bitPerm:       tt.fields.bitPerm,
+			cycles := make([]int, len(Permutator1.Cycles))
+			for idx, val := range Permutator1.Cycles {
+				cycles[idx] = val.Length
 			}
+			p := new(Permutator).New(cycles, append([]byte(nil), Permutator1.Randp...))
 			if got := p.ApplyG(tt.args.blk); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Permutator.ApplyG() = %v, want %v", got, tt.want)
+				t.Errorf("Permutator.ApplyF() = %v, want %v", got, tt.want)
 			}
 		})
 	}
