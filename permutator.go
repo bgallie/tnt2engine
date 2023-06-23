@@ -11,6 +11,10 @@ import (
 	"sync"
 )
 
+const (
+	NumberPermutationCycles int = 4
+)
+	
 var (
 	// CycleSizes is an array of cycles to use when cycling the permutation table.
 	// There are 4 cycles in each entry and they meet the following criteria:

@@ -15,7 +15,6 @@ const (
 	BitsPerByte             int = 8
 	CipherBlockSize         int = 256 // bits
 	CipherBlockBytes        int = CipherBlockSize / BitsPerByte
-	NumberPermutationCycles int = 4
 )
 
 var (
