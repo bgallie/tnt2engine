@@ -14,7 +14,7 @@ import (
 const (
 	NumberPermutationCycles int = 4
 )
-	
+
 var (
 	// CycleSizes is an array of cycles to use when cycling the permutation table.
 	// There are 4 cycles in each entry and they meet the following criteria:
@@ -201,7 +201,7 @@ func (p *Permutator) ApplyG(blk CipherBlock) CipherBlock {
 // String formats a string representing the permutator (as Go source code).
 func (p *Permutator) String() string {
 	var output bytes.Buffer
-	output.WriteString("permutator.New([]int{")
+	output.WriteString("new(Permutator).New([]int{")
 	for _, v := range p.Cycles[0 : NumberPermutationCycles-1] {
 		output.WriteString(fmt.Sprintf("%d, ", v.Length))
 	}

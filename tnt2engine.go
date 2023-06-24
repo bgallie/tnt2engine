@@ -21,6 +21,7 @@ import (
 )
 
 var (
+	engineLayout   = "rrprrprr"
 	proFormaRotors = []*Rotor{
 		// Define the proforma rotors used to create the actual rotors to use.
 		new(Rotor).New(1783, 863, 1033, []byte{
@@ -163,15 +164,15 @@ var (
 			225, 126, 54, 36, 220, 208, 150, 117, 255, 221, 101, 69, 77, 110, 243, 206,
 			130, 59, 205, 242, 184, 164, 131, 12, 2, 119, 96, 171, 53, 68, 8, 145}),
 	}
-	Rotor1               = proFormaRotors[0]
-	Rotor2               = proFormaRotors[1]
-	Rotor3               = proFormaRotors[2]
-	Rotor4               = proFormaRotors[3]
-	Rotor5               = proFormaRotors[4]
-	Rotor6               = proFormaRotors[5]
-	Permutator1          = proFormPermutators[0]
-	Permutator2          = proFormPermutators[1]
-	counter     *Counter = new(Counter)
+	Rotor1      = proFormaRotors[0]
+	Rotor2      = proFormaRotors[1]
+	Rotor3      = proFormaRotors[2]
+	Rotor4      = proFormaRotors[3]
+	Rotor5      = proFormaRotors[4]
+	Rotor6      = proFormaRotors[5]
+	Permutator1 = proFormPermutators[0]
+	Permutator2 = proFormPermutators[1]
+	counter     = new(Counter)
 	jc1Key      *jc1.UberJc1
 )
 
@@ -298,7 +299,19 @@ func (e *Tnt2Engine) Init(secret []byte, proFormaFileName string) {
 	// sizes in a random order based on the key.
 	cycleSizes = random.Perm(len(CycleSizes))
 	cycleSizesIndex = 0
+	// get the number of rotors and permutators
+	rCnt, rIdx := 0, 0
+	pCnt, pIdx := 0, 0
+	for _, v := range engineLayout {
+		if v == 'r' {
+			rCnt += 1
+		} else if v == 'p' {
+			pCnt += 1
+		}
+	}
 	// Update the rotors and permutators in a very non-linear fashion.
+	rotors := make([]Crypter, rCnt)
+	permutators := make([]Crypter, pCnt)
 	e.maximalStates = new(big.Int).Set(BigOne)
 	for _, machine := range e.engine {
 		switch v := machine.(type) {
@@ -307,9 +320,13 @@ func (e *Tnt2Engine) Init(secret []byte, proFormaFileName string) {
 		case *Rotor:
 			machine.Update(random)
 			e.maximalStates = e.maximalStates.Mul(e.maximalStates, big.NewInt(int64(machine.(*Rotor).Size)))
+			rotors[rIdx] = machine
+			rIdx++
 		case *Permutator:
 			machine.Update(random)
 			e.maximalStates = e.maximalStates.Mul(e.maximalStates, big.NewInt(int64(machine.(*Permutator).MaximalStates)))
+			permutators[pIdx] = machine
+			pIdx++
 		case *Counter:
 			machine.SetIndex(BigZero)
 		}
@@ -317,9 +334,17 @@ func (e *Tnt2Engine) Init(secret []byte, proFormaFileName string) {
 	// Now that we have created the new rotors and permutators from the proform
 	// machine, populate the Tnt2Engine with them.
 	newMachine := make([]Crypter, 9)
-	machineOrder := random.Perm(len(e.engine))
-	for idx, val := range machineOrder {
-		newMachine[idx] = e.engine[val]
+	rotorOrder := random.Perm(rCnt)
+	permOrder := random.Perm(pCnt)
+	rIdx, pIdx = 0, 0
+	for idx, val := range engineLayout {
+		if val == 'r' {
+			newMachine[idx] = rotors[rotorOrder[rIdx]]
+			rIdx++
+		} else if val == 'p' {
+			newMachine[idx] = permutators[permOrder[pIdx]]
+			pIdx++
+		}
 	}
 	counter.SetIndex(BigZero)
 	newMachine[len(newMachine)-1] = counter

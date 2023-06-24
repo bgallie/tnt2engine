@@ -137,7 +137,7 @@ func (r *Rotor) ApplyG(blk CipherBlock) CipherBlock {
 func (r *Rotor) String() string {
 	var output bytes.Buffer
 	rotorLen := len(r.Rotor)
-	output.WriteString(fmt.Sprintf("rotor.New(%d, %d, %d, []byte{\n",
+	output.WriteString(fmt.Sprintf("new(Rotor).New(%d, %d, %d, []byte{\n",
 		r.Size, r.Start, r.Step))
 	for i := 0; i < rotorLen; i += 16 {
 		output.WriteString("\t")
