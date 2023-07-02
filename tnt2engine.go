@@ -332,8 +332,9 @@ func (e *Tnt2Engine) Init(secret []byte, proFormaFileName string) {
 		}
 	}
 	// Now that we have created the new rotors and permutators from the proform
-	// machine, populate the Tnt2Engine with them.
-	newMachine := make([]Crypter, 9)
+	// machine, populate the Tnt2Engine with them using a random order for the
+	// rotors and the permutators (without changing the layout in engineLayout).
+	newMachine := make([]Crypter, len(engineLayout)+1)
 	rotorOrder := random.Perm(rCnt)
 	permOrder := random.Perm(pCnt)
 	rIdx, pIdx = 0, 0
@@ -424,15 +425,11 @@ func createProFormaMachine(pfmReader io.Reader) *[]Crypter {
 			default:
 				fmt.Fprintf(os.Stderr, "Unknown machine: %v\n", v)
 			case *Rotor:
-				// r := new(Rotor)
 				err := jDecoder.Decode(&machine)
 				checkFatal(err)
-				// newMachine[cnt] = r
 			case *Permutator:
-				// p := new(Permutator)
 				err := jDecoder.Decode(&machine)
 				checkFatal(err)
-				// newMachine[cnt] = p
 			}
 		}
 	}
