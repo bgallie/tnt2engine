@@ -668,10 +668,9 @@ func TestTnt2Engine_BuildCipherMachine(t *testing.T) {
 }
 
 func Test_createProFormaMachine(t *testing.T) {
-	in, err := os.Open("files/test.proforma.json")
+	proFormaFile, err := os.Open("./files/test.proforma.json")
 	checkFatal(err)
-	defer in.Close()
-	// pfmReader = bufio.NewReader(in)
+	defer proFormaFile.Close()
 
 	type args struct {
 		pfmReader io.Reader
@@ -688,7 +687,7 @@ func Test_createProFormaMachine(t *testing.T) {
 		},
 		{
 			name: "tcpfm1",
-			args: args{pfmReader: bufio.NewReader(in)},
+			args: args{pfmReader: bufio.NewReader(proFormaFile)},
 			want: &[]Crypter{
 				new(Rotor).New(1783, 610, 1171, []byte{
 					82, 79, 214, 126, 124, 24, 21, 75, 235, 217, 180, 22, 1, 71, 68, 133,

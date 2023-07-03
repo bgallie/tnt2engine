@@ -260,7 +260,7 @@ func (e *Tnt2Engine) MaximalStates() *big.Int {
 // the proForma rotors and permutators in complex way, updating the rotors and
 // permutators in place.
 func (e *Tnt2Engine) Init(secret []byte, proFormaFileName string) {
-	jc1Key = jc1.NewUberJc1(secret)
+	jc1Key = new(jc1.UberJc1).New(secret)
 	// Create an ecryption machine based on the proForma rotors and permutators.
 	var pfmReader io.Reader = nil
 	if len(proFormaFileName) != 0 {
