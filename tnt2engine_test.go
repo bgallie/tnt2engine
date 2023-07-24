@@ -79,7 +79,7 @@ func TestTnt2Engine_CounterKey(t *testing.T) {
 		{
 			name:             "ttec2",
 			key:              "SecretKey",
-			proFormaFileName: "test.proforma.json",
+			proFormaFileName: "files/test.proforma.json",
 			want:             "9d468a888bf287c0cdc3008569b76c0cb7091b062f0b6209461436534392f95c",
 		},
 	}
@@ -683,7 +683,7 @@ func Test_createProFormaMachine(t *testing.T) {
 		{
 			name: "tcpfm1",
 			args: args{pfmReader: nil},
-			want: &[]Crypter{Rotor1, Rotor2, Permutator1, Rotor3, Rotor4, Permutator2, Rotor5, Rotor6},
+			want: &[]Crypter{proFormaRotors[0], proFormaRotors[1], proFormPermutators[0], proFormaRotors[2], proFormaRotors[3], proFormPermutators[1], proFormaRotors[4], proFormaRotors[5]},
 		},
 		{
 			name: "tcpfm1",

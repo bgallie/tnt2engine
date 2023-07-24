@@ -16,16 +16,16 @@ func TestNewPermutator(t *testing.T) {
 	}{
 		{
 			name: "tnp1",
-			want: Permutator1,
+			want: proFormPermutators[0],
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cycles := make([]int, len(Permutator1.Cycles))
-			for idx, val := range Permutator1.Cycles {
+			cycles := make([]int, len(proFormPermutators[0].Cycles))
+			for idx, val := range proFormPermutators[0].Cycles {
 				cycles[idx] = val.Length
 			}
-			if got := new(Permutator).New(cycles, append([]byte(nil), Permutator1.Randp...)); !reflect.DeepEqual(got, tt.want) {
+			if got := new(Permutator).New(cycles, append([]byte(nil), proFormPermutators[0].Randp...)); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewPermutator() = %v, want %v", got, tt.want)
 			}
 		})
@@ -67,11 +67,11 @@ func TestPermutator_Update(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cycles := make([]int, len(Permutator1.Cycles))
-			for idx, val := range Permutator1.Cycles {
+			cycles := make([]int, len(proFormPermutators[0].Cycles))
+			for idx, val := range proFormPermutators[0].Cycles {
 				cycles[idx] = val.Length
 			}
-			p := new(Permutator).New(cycles, append([]byte(nil), Permutator1.Randp...))
+			p := new(Permutator).New(cycles, append([]byte(nil), proFormPermutators[0].Randp...))
 			p.Update(rnd)
 			if !reflect.DeepEqual(p, tt.want) {
 				t.Errorf("Updated Permutator() = %v, want %v", p, tt.want)
@@ -109,11 +109,11 @@ func TestPermutator_nextState(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cycles := make([]int, len(Permutator1.Cycles))
-			for idx, val := range Permutator1.Cycles {
+			cycles := make([]int, len(proFormPermutators[0].Cycles))
+			for idx, val := range proFormPermutators[0].Cycles {
 				cycles[idx] = val.Length
 			}
-			p := new(Permutator).New(cycles, append([]byte(nil), Permutator1.Randp...))
+			p := new(Permutator).New(cycles, append([]byte(nil), proFormPermutators[0].Randp...))
 			p.nextState()
 			if p.bitPerm != tt.want {
 				t.Errorf("p.bitPerm = %v, want %v", p.bitPerm, tt.want)
@@ -157,11 +157,11 @@ func TestPermutator_SetIndex(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cycles := make([]int, len(Permutator1.Cycles))
-			for idx, val := range Permutator1.Cycles {
+			cycles := make([]int, len(proFormPermutators[0].Cycles))
+			for idx, val := range proFormPermutators[0].Cycles {
 				cycles[idx] = val.Length
 			}
-			p := new(Permutator).New(cycles, append([]byte(nil), Permutator1.Randp...))
+			p := new(Permutator).New(cycles, append([]byte(nil), proFormPermutators[0].Randp...))
 			p.SetIndex(tt.args.idx)
 			if p.bitPerm != tt.want {
 				t.Errorf("p.bitPerm = %v, want %v", p.bitPerm, tt.want)
@@ -182,11 +182,11 @@ func TestPermutator_Index(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cycles := make([]int, len(Permutator1.Cycles))
-			for idx, val := range Permutator1.Cycles {
+			cycles := make([]int, len(proFormPermutators[0].Cycles))
+			for idx, val := range proFormPermutators[0].Cycles {
 				cycles[idx] = val.Length
 			}
-			p := new(Permutator).New(cycles, append([]byte(nil), Permutator1.Randp...))
+			p := new(Permutator).New(cycles, append([]byte(nil), proFormPermutators[0].Randp...))
 			if got := p.Index(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Permutator.Index() = %v, want %v", got, tt.want)
 			}
@@ -206,11 +206,11 @@ func TestPermutator_MaximalStates(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cycles := make([]int, len(Permutator1.Cycles))
-			for idx, val := range Permutator1.Cycles {
+			cycles := make([]int, len(proFormPermutators[0].Cycles))
+			for idx, val := range proFormPermutators[0].Cycles {
 				cycles[idx] = val.Length
 			}
-			p := new(Permutator).New(cycles, append([]byte(nil), Permutator1.Randp...))
+			p := new(Permutator).New(cycles, append([]byte(nil), proFormPermutators[0].Randp...))
 			if p.MaximalStates != tt.want {
 				t.Errorf("Permutator.MaximalStates = %d, want %d", p.MaximalStates, tt.want)
 			}
@@ -243,11 +243,11 @@ func TestPermutator_ApplyF(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cycles := make([]int, len(Permutator1.Cycles))
-			for idx, val := range Permutator1.Cycles {
+			cycles := make([]int, len(proFormPermutators[0].Cycles))
+			for idx, val := range proFormPermutators[0].Cycles {
 				cycles[idx] = val.Length
 			}
-			p := new(Permutator).New(cycles, append([]byte(nil), Permutator1.Randp...))
+			p := new(Permutator).New(cycles, append([]byte(nil), proFormPermutators[0].Randp...))
 			if got := p.ApplyF(tt.args.blk); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Permutator.ApplyF() = %v, want %v", got, tt.want)
 			}
@@ -280,11 +280,11 @@ func TestPermutator_ApplyG(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cycles := make([]int, len(Permutator1.Cycles))
-			for idx, val := range Permutator1.Cycles {
+			cycles := make([]int, len(proFormPermutators[0].Cycles))
+			for idx, val := range proFormPermutators[0].Cycles {
 				cycles[idx] = val.Length
 			}
-			p := new(Permutator).New(cycles, append([]byte(nil), Permutator1.Randp...))
+			p := new(Permutator).New(cycles, append([]byte(nil), proFormPermutators[0].Randp...))
 			if got := p.ApplyG(tt.args.blk); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Permutator.ApplyF() = %v, want %v", got, tt.want)
 			}
@@ -320,7 +320,7 @@ func TestPermutator_String(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := Permutator1
+			p := proFormPermutators[0]
 			if got := p.String(); got != tt.want {
 				t.Errorf("Permutator.String() = %v, want %v", got, tt.want)
 			}

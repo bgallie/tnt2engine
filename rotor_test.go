@@ -45,7 +45,7 @@ func TestNewRotor(t *testing.T) {
 					12, 95, 253, 145, 133, 55, 237, 183, 0, 150, 157, 68, 6, 92, 11, 77,
 					241, 50, 172, 211, 182, 22, 174, 9, 82, 194, 116, 145, 66, 69, 111, 0},
 			},
-			want: Rotor1,
+			want: proFormaRotors[0],
 		},
 	}
 	for _, tt := range tests {
@@ -142,7 +142,7 @@ func TestRotor_Update(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := new(Rotor).New(Rotor1.Size, Rotor1.Start, Rotor1.Size, append([]byte(nil), Rotor1.Rotor...))
+			r := new(Rotor).New(proFormaRotors[0].Size, proFormaRotors[0].Start, proFormaRotors[0].Size, append([]byte(nil), proFormaRotors[0].Rotor...))
 			r.Update(rnd)
 			if !reflect.DeepEqual(r, tt.want) {
 				t.Errorf("Updated Rotor() = %v, want %v", r, tt.want)
@@ -179,8 +179,8 @@ func TestRotor_sliceRotor(t *testing.T) {
 				12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 			r.sliceRotor()
-			if !reflect.DeepEqual(r, Rotor1) {
-				t.Errorf("Sliced Rotor() = %v, want %v", r, Rotor1)
+			if !reflect.DeepEqual(r, proFormaRotors[0]) {
+				t.Errorf("Sliced Rotor() = %v, want %v", r, proFormaRotors[0])
 			}
 		})
 	}
@@ -205,7 +205,7 @@ func TestRotor_SetIndex(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := Rotor1
+			r := proFormaRotors[0]
 			r.SetIndex(tt.args.idx)
 			if r.Current != tt.want {
 				t.Errorf("r.Current = %v, want %v", r.Current, tt.want)
@@ -226,7 +226,7 @@ func TestRotor_Index(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := Rotor1
+			r := proFormaRotors[0]
 			if got := r.Index(); got != tt.want {
 				t.Errorf("Rotor.Index() = %v, want %v", got, tt.want)
 			}
@@ -270,7 +270,7 @@ func TestRotor_ApplyF(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := Rotor1
+			r := proFormaRotors[0]
 			r.Current = 0
 			if got := r.ApplyF(tt.args.blk); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Rotor.ApplyF() = %v, want %v", got, tt.want)
@@ -315,7 +315,7 @@ func TestRotor_ApplyG(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := Rotor1
+			r := proFormaRotors[0]
 			r.Current = 0
 			if got := r.ApplyG(tt.args.blk); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Rotor.ApplyG() = %v, want %v", got, tt.want)
@@ -352,7 +352,7 @@ func TestRotor_String(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := Rotor1
+			r := proFormaRotors[0]
 			if got := r.String(); got != tt.want {
 				t.Errorf("Rotor.String() = %v, want = %v", got, tt.want)
 			}
