@@ -27,10 +27,10 @@ var (
 		{53, 65, 67, 71}, // Number of unique states: 16,387,685
 		{55, 57, 71, 73}, // Number of unique states: 16,248,705
 		{53, 61, 63, 79}, // Number of unique states: 16,090,641
-		{43, 57, 73, 83}, // Number of unique states: 14,850,609
 		{49, 51, 73, 83}, // Number of unique states: 15,141,441
 		{47, 53, 73, 83}, // Number of unique states: 15,092,969
-		{47, 53, 71, 85}} // Number of unique states: 15,033,185
+		{47, 53, 71, 85}, // Number of unique states: 15,033,185
+		{43, 57, 73, 83}} // Number of unique states: 14,850,609
 
 	// CyclePermutations is an array of possible orderings that a particular
 	// set of four (4) cycle sizes can take.  This is used to increase the number
@@ -69,7 +69,7 @@ func (p *Permutator) New(cycleSizes []int, randp []byte) *Permutator {
 	p.MaximalStates = 1
 	p.Randp = append(p.Randp[:0], randp...)
 	// Create the Cycles structure based on the given cycle sizes
-	p.Cycles = make([]Cycle, len(cycleSizes))
+	p.Cycles = make([]Cycle, NumberPermutationCycles)
 	for i := range cycleSizes {
 		p.Cycles[i].Length = cycleSizes[i]
 		p.Cycles[i].Current = 0
@@ -94,18 +94,23 @@ func (p *Permutator) Update(random *Rand) {
 	p.CurrentState = 0
 	p.MaximalStates = 1
 	// Create a table of byte values [0...255] in a random order
+	if len(p.Randp) == 0 {
+		p.Randp = make([]byte, CipherBlockSize)
+	}
 	for i, val := range random.Perm(CipherBlockSize) {
 		p.Randp[i] = byte(val)
 	}
 	// Chose a size of the cycles to use and randomize order of the values
-	length := len(CycleSizes[cycleSizesIndex])
-	cycles := make([]int, length)
-	randi := random.Perm(length)
+	cycles := make([]int, NumberPermutationCycles)
+	randi := random.Perm(NumberPermutationCycles)
 	for idx, val := range randi {
 		cycles[idx] = CycleSizes[cycleSizes[cycleSizesIndex]][val]
 	}
 	cycleSizesIndex = (cycleSizesIndex + 1) % len(CycleSizes)
 	// update p.Cycles based on the new cycle sizes
+	if len(p.Cycles) == 0 {
+		p.Cycles = make([]Cycle, NumberPermutationCycles)
+	}
 	for i := range cycles {
 		p.Cycles[i].Length = cycles[i]
 		p.Cycles[i].Current = 0

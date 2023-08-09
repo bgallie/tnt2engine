@@ -49,8 +49,8 @@ func (r *Rotor) New(size, start, step int, rotor []byte) *Rotor {
 //   - random rotor data.
 func (r *Rotor) Update(random *Rand) {
 	// Get size, start and step of the new rotor
-	rotorSize := RotorSizes[rotorSizes[rotorSizesIndex]]
-	rotorSizesIndex = (rotorSizesIndex + 1) % len(RotorSizes)
+	rotorSize := rotorSizes[rotorSizesIndex]
+	rotorSizesIndex++
 	start := random.Intn(rotorSize)
 	step := random.Intn(rotorSize-1) + 1
 	// byteCnt is the total number of bytes needed to hold rotorSize bits + a slice of 256 bits
