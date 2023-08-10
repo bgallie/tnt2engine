@@ -21,7 +21,7 @@ import (
 )
 
 var (
-	engineLayout   = "rrprrprr"
+	EngineLayout   = "rrprrprr"
 	proFormaRotors = []*Rotor{
 		// Define the proforma rotors used to create the actual rotors to use.
 		new(Rotor).New(1783, 863, 1033, []byte{
@@ -250,7 +250,7 @@ func (e *Tnt2Engine) MaximalStates() *big.Int {
 
 func countLayoutType(cType rune) int {
 	var cnt int
-	for _, v := range engineLayout {
+	for _, v := range EngineLayout {
 		if cType == v {
 			cnt++
 		}
@@ -341,11 +341,11 @@ func (e *Tnt2Engine) Init(secret []byte, proFormaFileName string) {
 	// Now that we have created the new rotors and permutators from the proform
 	// machine, populate the Tnt2Engine with them using a random order for the
 	// rotors and the permutators (without changing the layout in engineLayout).
-	newMachine := make([]Crypter, len(engineLayout)+1)
+	newMachine := make([]Crypter, len(EngineLayout)+1)
 	rotorOrder := random.Perm(rCnt)
 	permOrder := random.Perm(pCnt)
 	rIdx, pIdx = 0, 0
-	for idx, val := range engineLayout {
+	for idx, val := range EngineLayout {
 		if val == 'r' {
 			newMachine[idx] = rotors[rotorOrder[rIdx]]
 			rIdx++
