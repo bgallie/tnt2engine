@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"fmt"
 	"math/big"
+	"os"
 )
 
 var (
@@ -22,7 +23,6 @@ var (
 		7907, 7919, 7927, 7933, 7937, 7949, 7951, 7963, 7993, 8009,
 		8011, 8017, 8039, 8053, 8059, 8069, 8081, 8087, 8089, 8093,
 		8101, 8111, 8117, 8123, 8147, 8161, 8167, 8171, 8179, 8191}
-	rotorSizes      []int
 	rotorSizesIndex int
 )
 
@@ -49,8 +49,8 @@ func (r *Rotor) New(size, start, step int, rotor []byte) *Rotor {
 //   - random rotor data.
 func (r *Rotor) Update(random *Rand) {
 	// Get size, start and step of the new rotor
-	rotorSize := rotorSizes[rotorSizesIndex]
-	rotorSizesIndex++
+	rotorSize := RotorSizes[rotorSizesIndex]
+	rotorSizesIndex--
 	start := random.Intn(rotorSize)
 	step := random.Intn(rotorSize-1) + 1
 	// byteCnt is the total number of bytes needed to hold rotorSize bits + a slice of 256 bits
@@ -71,15 +71,25 @@ func (r *Rotor) Update(random *Rand) {
 
 // sliceRotor - appends the first 256 bits of the rotor to the end of the rotor.
 func (r *Rotor) sliceRotor() {
-	var i, j uint
-	j = uint(r.Size)
-	for i = 0; i < 256; i++ {
-		if GetBit(r.Rotor, i) {
-			SetBit(r.Rotor, j)
-		} else {
-			ClrBit(r.Rotor, j)
+	var size, sBlk, sBit, Rshift, Lshift uint
+	var i int
+	size = uint(r.Size)
+	sBlk = size >> 3
+	sBit = size & 7
+	Rshift = 8 - sBit
+	Lshift = sBit
+	fmt.Fprintf(os.Stderr, "size: %d sBlk: %d sBit: %d Rshift: %d\n", size, sBlk, sBit, Rshift)
+	if sBit == 0 {
+		copy(r.Rotor[sBlk:], r.Rotor[0:CipherBlockBytes])
+	} else {
+		// The copy appending will be done at the byte level instead of the bit level
+		// so that we only loop 32 times instead of 256 times.
+		for i = 0; i < CipherBlockBytes; i++ {
+			r.Rotor[sBlk] &= (0xff >> Rshift)       // Clear out the bits that will be replaced
+			r.Rotor[sBlk] |= (r.Rotor[i] << Lshift) // and add in the bits from the beginning of the rotor
+			sBlk++
+			r.Rotor[sBlk] = (r.Rotor[i] >> Rshift) // Seed the next byte at the end with the remaining bits from the beginning byte.
 		}
-		j++
 	}
 }
 
@@ -106,19 +116,25 @@ func (r *Rotor) Index() *big.Int {
 
 // Get the number of bytes in "blk" from the given rotor.
 func (r *Rotor) getRotorBlock(blk CipherBlock) CipherBlock {
+	// This code handles short blocks to accomadate file lenghts
+	// that are not multiples of "CipherBlockBytes"
 	ress := make([]byte, len(blk))
 	rotor := r.Rotor
-	idx := r.Current
-	blockSize := len(blk) * BitsPerByte
-
-	for cnt := 0; cnt < blockSize; cnt++ {
-		if GetBit(rotor, uint(idx)) {
-			SetBit(ress, uint(cnt))
+	sBit := r.Current & 7
+	bIdx := r.Current >> 3
+	// The copy operates at the byte level instead of the bit level
+	// so we only loop 32 times instead of 256 times.
+	if sBit == 0 {
+		copy(ress, rotor[bIdx:])
+	} else {
+		sLeft := 8 - sBit
+		for bCnt := 0; bCnt < len(ress); bCnt++ {
+			ress[bCnt] = rotor[bIdx]>>sBit |
+				(rotor[bIdx+1] << sLeft)
+			bIdx++
 		}
-
-		idx++
 	}
-
+	// Step the rotor to its new position.
 	r.Current = (r.Current + r.Step) % r.Size
 	return ress
 }
