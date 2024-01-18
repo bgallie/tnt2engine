@@ -296,8 +296,7 @@ func (e *Tnt2Engine) Init(secret []byte, proFormaFileName string) {
 	// random data generated the proforma encryption machine.
 	random := new(Rand).New(e)
 	// Get the last _rCnt_ rotor sizes (to maximize the period of the generator).
-	rotorSizes = RotorSizes[len(RotorSizes)-rCnt:]
-	rotorSizesIndex = 0
+	rotorSizesIndex = len(RotorSizes) - 1
 	// Create a permutaion of cycle sizes indices to allow picking the cycle
 	// sizes in a random order based on the key.
 	cycleSizes = random.Perm(pCnt)
