@@ -9,7 +9,6 @@ import (
 	"bytes"
 	"fmt"
 	"math/big"
-	"os"
 )
 
 var (
@@ -35,12 +34,12 @@ type Rotor struct {
 	Rotor   []byte // the rotor
 }
 
-// New - initializes a new Rotor with the given size, start, step and rotor data.
+// New fills the (empty) rotor r with the given size, start, step and rotor data.
 func (r *Rotor) New(size, start, step int, rotor []byte) *Rotor {
 	r.Start, r.Current = start, start
 	r.Size = size
 	r.Step = step
-	r.Rotor = rotor
+	r.Rotor = append([]byte(nil), rotor...)
 	r.sliceRotor()
 	return r
 }
@@ -60,16 +59,26 @@ func (r *Rotor) Update(random *Rand) {
 	// Adjust the size of r.Rotor to match the new rotor size.
 	adjRotor := make([]byte, blkBytes)
 	r.Rotor = append(r.Rotor, adjRotor...)
-	// Fill the rotor with random data using tnt2engine Rand function to generate the
-	// random data to fill the rotor.
-	random.Read(r.Rotor)
+	// Fill the rotor with random data using tntengine Rand function to generate the
+	// random data to fill the rotor.  As an optimization, set the random.idx equal to
+	// CypherBlockSize.  This will ensure that the random.Read() will only call the
+	// encryption function one time per block instead of up to two times per block.
+	random.idx = CipherBlockBytes
+	blk := make(CipherBlock, CipherBlockBytes)
+	CipherBlocksToRead := (rotorSize + 7) / CipherBlockSize
+	j := 0
+	for i := 0; i < CipherBlocksToRead; i++ {
+		random.Read(blk)
+		copy(r.Rotor[j:], blk[:])
+		j += CipherBlockBytes
+	}
 	r.Size = rotorSize
 	r.Step = step
 	r.Start, r.Current = start, start
-	r.sliceRotor()
+	r.sliceRotor() // Append the first 256 bits of the rotor to the end of the rotor
 }
 
-// sliceRotor - appends the first 256 bits of the rotor to the end of the rotor.
+// sliceRotor appends the first 256 bits of the rotor to the end of the rotor.
 func (r *Rotor) sliceRotor() {
 	var size, sBlk, sBit, Rshift, Lshift uint
 	var i int
@@ -78,7 +87,6 @@ func (r *Rotor) sliceRotor() {
 	sBit = size & 7
 	Rshift = 8 - sBit
 	Lshift = sBit
-	fmt.Fprintf(os.Stderr, "size: %d sBlk: %d sBit: %d Rshift: %d\n", size, sBlk, sBit, Rshift)
 	if sBit == 0 {
 		copy(r.Rotor[sBlk:], r.Rotor[0:CipherBlockBytes])
 	} else {
@@ -93,12 +101,15 @@ func (r *Rotor) sliceRotor() {
 	}
 }
 
-// SetIndex - set the current rotor position based on the given index
+// SetIndex positions the rotor to the position it would be in after
+// processing idx number of blocks.
 func (r *Rotor) SetIndex(idx *big.Int) {
 	// Special case if idx == 0
 	if idx.Sign() == 0 {
 		r.Current = r.Start
 	} else {
+		// Calculate the new r.Current:
+		// r.Current = mod(((idx * r.Step) + r.Start), r.Size) + r.Start
 		p := new(big.Int)
 		q := new(big.Int)
 		rem := new(big.Int)
@@ -109,12 +120,12 @@ func (r *Rotor) SetIndex(idx *big.Int) {
 	}
 }
 
-// Index - Rotor does no track the index.
+// Always return nil since the block count is not tracked for rotors.
 func (r *Rotor) Index() *big.Int {
 	return nil
 }
 
-// Get the number of bytes in "blk" from the given rotor.
+// Get the number of bits in the CipherBlock from rotor r.
 func (r *Rotor) getRotorBlock(blk CipherBlock) CipherBlock {
 	// This code handles short blocks to accomadate file lenghts
 	// that are not multiples of "CipherBlockBytes"
@@ -139,17 +150,19 @@ func (r *Rotor) getRotorBlock(blk CipherBlock) CipherBlock {
 	return ress
 }
 
-// ApplyF - encrypts the given block of data.
+// ApplyF encrypts the given block of data using the rotor r.
 func (r *Rotor) ApplyF(blk CipherBlock) CipherBlock {
+	// Add (not XOR) the rotor bits to the bits in the input block.
 	return AddBlock(blk, r.getRotorBlock(blk))
 }
 
-// ApplyG - decrypts the given block of data
+// ApplyG decrypts the given block of data using the rotor r.
 func (r *Rotor) ApplyG(blk CipherBlock) CipherBlock {
+	// Subtract (not XOR) the rotor bits from the bits in the input block.
 	return SubBlock(blk, r.getRotorBlock(blk))
 }
 
-// String - converts a Rotor to a string representation of the Rotor.
+// String converts a Rotor to a string representation of the Rotor.
 func (r *Rotor) String() string {
 	var output bytes.Buffer
 	rotorLen := len(r.Rotor)
@@ -158,9 +171,10 @@ func (r *Rotor) String() string {
 	for i := 0; i < rotorLen; i += 16 {
 		output.WriteString("\t")
 		if i+16 < rotorLen {
-			for _, k := range r.Rotor[i : i+16] {
+			for _, k := range r.Rotor[i : i+15] {
 				output.WriteString(fmt.Sprintf("%d, ", k))
 			}
+			output.WriteString(fmt.Sprintf("%d,", r.Rotor[i+15]))
 		} else {
 			l := len(r.Rotor[i:])
 			for _, k := range r.Rotor[i : i+l-1] {

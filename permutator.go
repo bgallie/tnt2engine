@@ -106,7 +106,7 @@ func (p *Permutator) Update(random *Rand) {
 	for idx, val := range randi {
 		cycles[idx] = CycleSizes[cycleSizes[cycleSizesIndex]][val]
 	}
-	cycleSizesIndex = (cycleSizesIndex + 1) % len(CycleSizes)
+	cycleSizesIndex = (cycleSizesIndex + 1) % len(cycleSizes)
 	// update p.Cycles based on the new cycle sizes
 	if len(p.Cycles) == 0 {
 		p.Cycles = make([]Cycle, NumberPermutationCycles)
@@ -125,7 +125,7 @@ func (p *Permutator) Update(random *Rand) {
 	p.cycle()
 }
 
-// cycle bitPerm to it's next state.
+// Cycle bitPerm to it's next state.
 func (p *Permutator) nextState() {
 	for idx := 0; idx < len(p.Cycles); idx++ {
 		p.Cycles[idx].Current = (p.Cycles[idx].Current + 1) % p.Cycles[idx].Length
@@ -174,6 +174,9 @@ func (p *Permutator) Index() *big.Int {
 }
 
 // ApplyF performs forward permutation on the 32 byte block of data.
+// Note: if the length of the incoming block is less than CipherBlockBytes
+// in length, then the permutation is not applied.  This allows files whose
+// length is not a multiple of 32 bytes to be correctly enrypted/decrypted.
 func (p *Permutator) ApplyF(blk CipherBlock) CipherBlock {
 	if len(blk) == CipherBlockBytes {
 		ress := make([]byte, CipherBlockBytes)
@@ -189,6 +192,9 @@ func (p *Permutator) ApplyF(blk CipherBlock) CipherBlock {
 }
 
 // ApplyG performs the reverse permutation on the 32 byte block of data.
+// Note: if the length of the incoming block is less than CipherBlockBytes
+// in length, then the permutation is not applied.  This allows files whose
+// length is not a multiple of 32 bytes to be correctly enrypted/decrypted.
 func (p *Permutator) ApplyG(blk CipherBlock) CipherBlock {
 	if len(blk) == CipherBlockBytes {
 		ress := make([]byte, CipherBlockBytes)

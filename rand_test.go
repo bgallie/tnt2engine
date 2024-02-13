@@ -105,7 +105,7 @@ func TestRand_Intn(t *testing.T) {
 		{
 			name:  "Intn Test 1",
 			args:  args{1000},
-			want:  266,
+			want:  215,
 			wantK: "ab2677fa2eecca36541ea85fd8d871203383b898bb025b8ec8fd5f24719eee1c",
 			wantR: &Rand{tntMachine, CipherBlockBytes, emptyBlk},
 		},
@@ -146,7 +146,7 @@ func TestRand_Int63n(t *testing.T) {
 		{
 			name:  "Int63n Test 1",
 			args:  args{1000000000},
-			want:  151703131,
+			want:  349671526,
 			wantK: "ab2677fa2eecca36541ea85fd8d871203383b898bb025b8ec8fd5f24719eee1c",
 			wantR: &Rand{tntMachine, CipherBlockBytes, emptyBlk},
 		},
@@ -186,7 +186,7 @@ func TestRand_Perm(t *testing.T) {
 		{
 			name:  "Prem Test 1",
 			args:  args{10},
-			want:  []int{4, 8, 5, 2, 3, 9, 1, 6, 0, 7},
+			want:  []int{5, 3, 9, 8, 6, 2, 1, 0, 7, 4},
 			wantK: "ab2677fa2eecca36541ea85fd8d871203383b898bb025b8ec8fd5f24719eee1c",
 		},
 	}
@@ -225,9 +225,9 @@ func TestRand_Read(t *testing.T) {
 			name: "Read test 1",
 			args: args{make([]byte, 36)},
 			want: []byte{
-				9, 10, 206, 91, 231, 88, 6, 33, 169, 111, 70, 241,
-				37, 95, 181, 73, 119, 230, 122, 97, 78, 245, 3, 101,
-				166, 155, 110, 55, 160, 148, 28, 203, 193, 27, 87, 150},
+				212, 215, 144, 102, 151, 201, 245, 199, 178, 97, 240, 75,
+				133, 250, 17, 218, 107, 4, 98, 214, 112, 141, 111, 208,
+				35, 200, 201, 84, 73, 9, 21, 168, 176, 82, 92, 117},
 			wantN:   36,
 			wantErr: false,
 			wantK:   "ab2677fa2eecca36541ea85fd8d871203383b898bb025b8ec8fd5f24719eee1c",

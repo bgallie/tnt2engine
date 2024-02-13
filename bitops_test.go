@@ -1,6 +1,6 @@
 package tnt2engine
 
-// Bit manipulation routines tests
+// Bit manipulation tests
 
 import (
 	"reflect"

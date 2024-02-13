@@ -164,7 +164,7 @@ var (
 			225, 126, 54, 36, 220, 208, 150, 117, 255, 221, 101, 69, 77, 110, 243, 206,
 			130, 59, 205, 242, 184, 164, 131, 12, 2, 119, 96, 171, 53, 68, 8, 145}),
 	}
-	counter = new(Counter)
+	counter *Counter = new(Counter)
 	jc1Key  *jc1.UberJc1
 )
 
@@ -189,7 +189,8 @@ func (e *Tnt2Engine) Right() chan CipherBlock {
 }
 
 // CounterKey is a getter that returns the SHAKE256 hash for the secret key.
-// This is used to set/retrieve that next block to use in encrypting data.
+// This is used to set/retrieve that next block to use in encrypting data
+// from the file used to save the next block to use..
 func (e *Tnt2Engine) CounterKey() string {
 	return e.cntrKey
 }
@@ -210,8 +211,8 @@ func (e *Tnt2Engine) Index() (cntr *big.Int) {
 	return
 }
 
-// SetIndex is a setter function that sets the rotors and permutators so the
-// the Tnt2Engine will be ready start encrypting/decrypting at the correct block.
+// SetIndex is a setter function that sets the rotors and permutators so that
+// the TntEngine will be ready start encrypting/decrypting at the correct block.
 func (e *Tnt2Engine) SetIndex(iCnt *big.Int) {
 	for _, machine := range e.engine {
 		machine.SetIndex(new(big.Int).Set(iCnt))
@@ -299,7 +300,7 @@ func (e *Tnt2Engine) Init(secret []byte, proFormaFileName string) {
 	rotorSizesIndex = len(RotorSizes) - 1
 	// Create a permutaion of cycle sizes indices to allow picking the cycle
 	// sizes in a random order based on the key.
-	cycleSizes = random.Perm(pCnt)
+	cycleSizes = random.Perm(len(CycleSizes))[0:2]
 	cycleSizesIndex = 0
 	// get the number of rotors and permutators
 	rIdx := 0
