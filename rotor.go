@@ -126,10 +126,10 @@ func (r *Rotor) Index() *big.Int {
 }
 
 // Get the number of bits in the CipherBlock from rotor r.
-func (r *Rotor) getRotorBlock(blk CipherBlock) CipherBlock {
+func (r *Rotor) getRotorBlock(bytes int) CipherBlock {
 	// This code handles short blocks to accomadate file lenghts
 	// that are not multiples of "CipherBlockBytes"
-	ress := make([]byte, len(blk))
+	ress := make([]byte, bytes)
 	rotor := r.Rotor
 	sBit := r.Current & 7
 	bIdx := r.Current >> 3
@@ -139,7 +139,7 @@ func (r *Rotor) getRotorBlock(blk CipherBlock) CipherBlock {
 		copy(ress, rotor[bIdx:])
 	} else {
 		sLeft := 8 - sBit
-		for bCnt := 0; bCnt < len(ress); bCnt++ {
+		for bCnt := 0; bCnt < bytes; bCnt++ {
 			ress[bCnt] = rotor[bIdx]>>sBit |
 				(rotor[bIdx+1] << sLeft)
 			bIdx++
@@ -153,13 +153,13 @@ func (r *Rotor) getRotorBlock(blk CipherBlock) CipherBlock {
 // ApplyF encrypts the given block of data using the rotor r.
 func (r *Rotor) ApplyF(blk CipherBlock) CipherBlock {
 	// Add (not XOR) the rotor bits to the bits in the input block.
-	return AddBlock(blk, r.getRotorBlock(blk))
+	return AddBlock(blk, r.getRotorBlock(len(blk)))
 }
 
 // ApplyG decrypts the given block of data using the rotor r.
 func (r *Rotor) ApplyG(blk CipherBlock) CipherBlock {
 	// Subtract (not XOR) the rotor bits from the bits in the input block.
-	return SubBlock(blk, r.getRotorBlock(blk))
+	return SubBlock(blk, r.getRotorBlock(len(blk)))
 }
 
 // String converts a Rotor to a string representation of the Rotor.
@@ -187,3 +187,33 @@ func (r *Rotor) String() string {
 
 	return output.String()
 }
+
+// // sliceRotor - appends the first 256 bits of the rotor to the end of the rotor.
+// func (r *Rotor) origSliceRotor() {
+// 	var i, j uint
+// 	j = uint(r.Size)
+// 	for i = 0; i < 256; i++ {
+// 		if GetBit(r.Rotor, i) {
+// 			SetBit(r.Rotor, j)
+// 		} else {
+// 			ClrBit(r.Rotor, j)
+// 		}
+// 		j++
+// 	}
+// }
+
+// // Get the number of bytes in "blk" from the given rotor.
+// func (r *Rotor) origGetRotorBlock(bytes int) CipherBlock {
+// 	ress := make([]byte, bytes)
+// 	rotor := r.Rotor
+// 	idx := r.Current
+// 	blockSize := bytes * BitsPerByte
+// 	for cnt := 0; cnt < blockSize; cnt++ {
+// 		if GetBit(rotor, uint(idx)) {
+// 			SetBit(ress, uint(cnt))
+// 		}
+// 		idx++
+// 	}
+// 	r.Current = (r.Current + r.Step) % r.Size
+// 	return ress
+// }

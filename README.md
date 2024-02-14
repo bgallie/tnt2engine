@@ -37,7 +37,5 @@ ___v1.3.0___
 2. Change **tntengine.Rand.Read**  to only initialize the _Rand.blk_ with UberJC1 on the first call to _Rand.Read()._  Subsequent encryption of _Rand.blk_ uses the results of the previous encryption of _Rand.blk_.
 3. Added tests for **tntengine.Rand**.
 
-> **Note:** Running all tests in _rand_test.go_ will fail all tests that get random data to fail, but running each test individually will succeed.  I am currently investigating this.
-
 ___v1.2.0___  
 This release of **tntengine** changes the parameter of `createProFormaMachine(proFormaFilename string)` to `createProFormaMachine(pfmMachine io.Reader)`.

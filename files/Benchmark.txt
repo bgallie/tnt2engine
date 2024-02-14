@@ -1,0 +1,12 @@
+Running tool: C:\Program Files\Go\bin\go.exe test -benchmem -run=^$ -bench ^(BenchmarkOrigSliceRotor|BenchmarkSliceRotor|BenchmarkOrigGetRotorBlock|BenchmarkGetRotorBlock)$ github.com/bgallie/tnt2engine
+
+goos: windows
+goarch: amd64
+pkg: github.com/bgallie/tnt2engine
+cpu: 11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz
+BenchmarkOrigSliceRotor-8      	 3243609	       402.90 ns/op	       0 B/op	       0 allocs/op
+BenchmarkSliceRotor-8          	14897282	        79.93 ns/op	       0 B/op	       0 allocs/op
+BenchmarkOrigGetRotorBlock-8   	 1497082	       780.20 ns/op	      32 B/op	       1 allocs/op
+BenchmarkGetRotorBlock-8   	    16141311	        71.30 ns/op	      32 B/op	       1 allocs/op
+PASS
+ok  	github.com/bgallie/tnt2engine	6.500s

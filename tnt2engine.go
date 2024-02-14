@@ -401,10 +401,11 @@ func createProFormaMachine(pfmReader io.Reader) *[]Crypter {
 	if pfmReader == nil {
 		// Create the proforma encryption machine.  The layout of the machine is:
 		// 		rotor, rotor, permutator, rotor, rotor, permutator, rotor, rotor
-
-		// Create the ProFormaMachine by making a copy of the hardcoded proforma rotors and permutators.
-		// This resolves an issue running tests where Tnt2Engine.Init() is called multiple times which
-		// caused a failure on the second call.
+		// ----------------------------------------------------------------------
+		// The ProFormaMachine is created by making a copy of the hardcoded proforma
+		// rotors and permutators.  This resolves an issue running tests where
+		// Tnt2Engine.Init() is called multiple times which caused a failure on
+		// the second call.
 		newMachine[0] = new(Rotor).New(proFormaRotors[0].Size, proFormaRotors[0].Start, proFormaRotors[0].Step, append([]byte(nil), proFormaRotors[0].Rotor...))
 		newMachine[1] = new(Rotor).New(proFormaRotors[1].Size, proFormaRotors[1].Start, proFormaRotors[1].Step, append([]byte(nil), proFormaRotors[1].Rotor...))
 		newMachine[2] = new(Permutator).New(getCycleSizes(proFormPermutators[0].Cycles), append([]byte(nil), proFormPermutators[0].Randp...))

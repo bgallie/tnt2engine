@@ -8,12 +8,16 @@ package tnt2engine
 import (
 	"encoding/hex"
 	"fmt"
-	"math/bits"
 	"os"
-	"reflect"
 )
 
 var emptyBlk CipherBlock
+
+const (
+	intSize = 32 << (^uint(0) >> 63)
+	rngMax  = 1 << 63
+	rngMask = rngMax - 1
+)
 
 type Rand struct {
 	tnt2Machine *Tnt2Engine
@@ -32,75 +36,91 @@ func (rnd *Rand) New(src *Tnt2Engine) *Rand {
 	return rnd
 }
 
-// Intn returns, as an int, a non-negative pseudo-random number in the
-// half-open interval [0,n) from the tntengine. It panics if n <= 0.
-func (rnd *Rand) Intn(max int) int {
-	if max <= 0 {
-		panic("argument to Intn is <= 0")
+// Intn returns, as an int, a non-negative pseudo-random number in the half-open interval [0,n).
+// It panics if n <= 0.
+func (r *Rand) Intn(n int) int {
+	if n <= 0 {
+		panic("invalid argument to Intn")
 	}
-	return int(rnd.Int63n(int64(max)))
+	if intSize == 32 {
+		return int(r.Int31n(int32(n)))
+	}
+	return int(r.Int63n(int64(n)))
 }
 
-// Int15n returns, as an int16, a non-negative pseudo-random number in the
-// half-open interval [0,n). It panics if n <= 0.
-func (rnd *Rand) Int15n(max int16) int16 {
-	if max <= 0 {
-		panic("argument to Int15n is <= 0")
+// Int31n returns, as an int32, a non-negative pseudo-random number in the half-open interval [0,n).
+// It panics if n <= 0.
+func (r *Rand) Int31n(n int32) int32 {
+	if n <= 0 {
+		panic("invalid argument to Int31n")
 	}
-	return int16(rnd.Int63n(int64(max)))
+	if n&(n-1) == 0 { // n is power of two, can mask
+		return r.Int31() & (n - 1)
+	}
+	max := int32((1 << 31) - 1 - (1<<31)%uint32(n))
+	v := r.Int31()
+	for v > max {
+		v = r.Int31()
+	}
+	return v % n
 }
 
-// Int31n returns, as an int32, a non-negative pseudo-random number in the
-// half-open interval [0,n). It panics if n <= 0.
-func (rnd *Rand) Int31n(max int32) int32 {
-	if max <= 0 {
-		panic("argument to Int31n is <= 0")
-	}
-	return int32(rnd.Int63n(int64(max)))
+// Int31 returns a non-negative pseudo-random 31-bit integer as an int32.
+func (r *Rand) Int31() int32 {
+	return int32(r.Int63() >> 32)
 }
 
-// Int63n returns, as an int64, a non-negative pseudo-random number in the
-// half-open interval [0,n). It panics if n <= 0.
-func (rnd *Rand) Int63n(max int64) int64 {
-	if max <= 0 {
-		panic("argument to Int63n is <= 0")
-	}
-
-	n := max - 1
-	// bitLen is the maximum bit length needed to encode a value < max.
-	bitLen := bits.Len64(uint64(n))
-	if bitLen == 0 {
-		// the only valid result is 0
-		return n
-	}
-	// k is the maximum byte length needed to encode a value < max.
-	k := (bitLen + 7) / 8
-	// b is the number of bits in the most significant byte of max-1.
-	b := uint(bitLen % 8)
-	if b == 0 {
-		b = 8
-	}
-
-	bytes := make([]byte, k)
-
-	for {
-		_, _ = rnd.Read(bytes)
-		// Clear bits in the first byte to increase the probability
-		// that the candidate is < max.
-		bytes[0] &= uint8(int(1<<b) - 1)
-
-		// Change the data in the byte slice into an integer ('n')
-		n = 0
-		for _, val := range bytes {
-			n = (n << 8) | int64(val)
-		}
-
-		if n < max {
-			return n
-		}
-	}
+// Uint32 returns a pseudo-random 32-bit value as a uint32.
+func (r *Rand) Uint32() uint32 {
+	return uint32(r.Int63() >> 31)
 }
 
+// Int63n returns, as an int64, a non-negative pseudo-random number in the half-open interval [0,n).
+// It panics if n <= 0.
+func (rnd *Rand) Int63n(n int64) int64 {
+	if n <= 0 {
+		panic("invalid argument to Int63n")
+	}
+	if n&(n-1) == 0 { // n is power of two, can mask
+		return rnd.Int63() & (n - 1)
+	}
+	max := int64(rngMask - (1<<63)%uint64(n))
+	v := rnd.Int63()
+	for v > max {
+		v = rnd.Int63()
+	}
+	return v % n
+}
+
+// Int63 returns a non-negative pseudo-random 63-bit integer as an int64.
+func (rnd *Rand) Int63() int64 {
+	return rnd.Int64() & rngMask
+}
+
+// Int64 returns a pseudo-random 64-bit value as a int64.
+func (rnd *Rand) Int64() int64 {
+	bytes := make([]byte, 8)
+	_, _ = rnd.Read(bytes)
+	var n int64
+	for _, val := range bytes {
+		n = (n << 8) | int64(val)
+	}
+	return n
+}
+
+// Uint64 returns a pseudo-random 64-bit value as a uint64.
+func (rnd *Rand) Uint64() uint64 {
+	bytes := make([]byte, 8)
+	_, _ = rnd.Read(bytes)
+	var n uint64
+	for _, val := range bytes {
+		n = (n << 8) | uint64(val)
+	}
+	return n
+}
+
+// Perm returns, as a slice of n ints, a pseudo-random permutation of the integers
+// in the half-open interval [0,n).
 func (rnd *Rand) Perm(n int) []int {
 	res := make([]int, n)
 
@@ -116,12 +136,14 @@ func (rnd *Rand) Perm(n int) []int {
 	return res
 }
 
+// Read generates len(p) random bytes and writes them into p. It
+// always returns len(p) and a nil error.
+// Read should not be called concurrently with any other Rand method.
 func (rnd *Rand) Read(p []byte) (n int, err error) {
-	err = nil
 	// On the first call to Read(), initialize rnd.blk with 32 psudo-random
 	// bytes that are based on the secret key so that the same sequence
 	// will be generated.
-	if reflect.DeepEqual(rnd.blk, emptyBlk) {
+	if string(rnd.blk) == string(emptyBlk) {
 		cntrKeyBytes, _ := hex.DecodeString(rnd.tnt2Machine.cntrKey)
 		cntrKeyBytes = jc1Key.XORKeyStream(cntrKeyBytes)
 		rnd.blk = make(CipherBlock, CipherBlockBytes)
@@ -132,7 +154,7 @@ func (rnd *Rand) Read(p []byte) (n int, err error) {
 	// Read psudo-random data generated by the tntengine (32 bytes at a time)
 	// and appending them into p.  It reads as many 32 bytes blocks as needed
 	// to fill p.  If not all bytes in the 32 byte block are needed, then the
-	// extra bytes are saved for the next ca;; to Read()
+	// extra bytes are saved for the next call to Read()
 	left := rnd.tnt2Machine.Left()
 	right := rnd.tnt2Machine.Right()
 	for {
@@ -154,5 +176,5 @@ func (rnd *Rand) Read(p []byte) (n int, err error) {
 		// and repeat until p is filled.
 	}
 
-	return len(p), err
+	return len(p), nil
 }
