@@ -841,45 +841,18 @@ func Test_createProFormaMachine(t *testing.T) {
 	}
 }
 
-// func BenchmarkOrigSliceRotor(b *testing.B) {
-// 	var tnt2Machine Tnt2Engine
-// 	tnt2Machine.Init([]byte("SecretKey"), "")
-// 	tnt2Machine.SetIndex(BigZero)
-// 	cnter := new(Counter)
-// 	cnter.SetIndex(BigZero)
-// 	rotor := tnt2Machine.engine[0].(*Rotor)
-// 	b.ResetTimer()
-// 	for i := 0; i < b.N; i++ {
-// 		rotor.origSliceRotor()
-// 	}
-// }
-
-// func BenchmarkSliceRotor(b *testing.B) {
-// 	var tnt2Machine Tnt2Engine
-// 	tnt2Machine.Init([]byte("SecretKey"), "")
-// 	tnt2Machine.SetIndex(BigZero)
-// 	cnter := new(Counter)
-// 	cnter.SetIndex(BigZero)
-// 	rotor := tnt2Machine.engine[0].(*Rotor)
-// 	b.ResetTimer()
-// 	for i := 0; i < b.N; i++ {
-// 		rotor.sliceRotor()
-// 	}
-// }
-
-// func BenchmarkOrigGetRotorBlock(b *testing.B) {
-// 	var tnt2Machine Tnt2Engine
-// 	tnt2Machine.Init([]byte("SecretKey"), "")
-// 	tnt2Machine.SetIndex(BigZero)
-// 	cnter := new(Counter)
-// 	cnter.SetIndex(BigZero)
-// 	rotor := tnt2Machine.engine[0].(*Rotor)
-// 	blk := make(CipherBlock, CipherBlockBytes)
-// 	b.ResetTimer()
-// 	for i := 0; i < b.N; i++ {
-// 		blk = rotor.origGetRotorBlock(len(blk))
-// 	}
-// }
+func BenchmarkSliceRotor(b *testing.B) {
+	var tnt2Machine Tnt2Engine
+	tnt2Machine.Init([]byte("SecretKey"), "")
+	tnt2Machine.SetIndex(BigZero)
+	cnter := new(Counter)
+	cnter.SetIndex(BigZero)
+	rotor := tnt2Machine.engine[0].(*Rotor)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		rotor.sliceRotor()
+	}
+}
 
 func BenchmarkGetRotorBlock(b *testing.B) {
 	var tnt2Machine Tnt2Engine

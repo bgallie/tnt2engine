@@ -187,33 +187,3 @@ func (r *Rotor) String() string {
 
 	return output.String()
 }
-
-// // sliceRotor - appends the first 256 bits of the rotor to the end of the rotor.
-// func (r *Rotor) origSliceRotor() {
-// 	var i, j uint
-// 	j = uint(r.Size)
-// 	for i = 0; i < 256; i++ {
-// 		if GetBit(r.Rotor, i) {
-// 			SetBit(r.Rotor, j)
-// 		} else {
-// 			ClrBit(r.Rotor, j)
-// 		}
-// 		j++
-// 	}
-// }
-
-// // Get the number of bytes in "blk" from the given rotor.
-// func (r *Rotor) origGetRotorBlock(bytes int) CipherBlock {
-// 	ress := make([]byte, bytes)
-// 	rotor := r.Rotor
-// 	idx := r.Current
-// 	blockSize := bytes * BitsPerByte
-// 	for cnt := 0; cnt < blockSize; cnt++ {
-// 		if GetBit(rotor, uint(idx)) {
-// 			SetBit(ress, uint(cnt))
-// 		}
-// 		idx++
-// 	}
-// 	r.Current = (r.Current + r.Step) % r.Size
-// 	return ress
-// }
