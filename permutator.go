@@ -31,16 +31,6 @@ var (
 		{47, 53, 73, 83}, // Number of unique states: 15,092,969
 		{47, 53, 71, 85}, // Number of unique states: 15,033,185
 		{43, 57, 73, 83}} // Number of unique states: 14,850,609
-
-	// CyclePermutations is an array of possible orderings that a particular
-	// set of four (4) cycle sizes can take.  This is used to increase the number
-	// of bitperms that can be generated from the randp table, increasing the
-	// complexity that the cryptoanalysis faces.
-	CyclePermutations = [...][NumberPermutationCycles]int{
-		{0, 1, 2, 3}, {0, 1, 3, 2}, {0, 2, 1, 3}, {0, 2, 3, 1}, {0, 3, 2, 1}, {0, 3, 1, 2},
-		{1, 0, 2, 3}, {1, 0, 3, 2}, {1, 2, 0, 3}, {1, 2, 3, 0}, {1, 3, 2, 0}, {1, 3, 0, 2},
-		{2, 0, 1, 3}, {2, 0, 3, 1}, {2, 1, 0, 3}, {2, 1, 3, 0}, {2, 3, 1, 0}, {2, 3, 0, 1},
-		{3, 0, 1, 2}, {3, 0, 2, 1}, {3, 1, 0, 2}, {3, 1, 2, 0}, {3, 2, 1, 0}, {3, 2, 0, 1}}
 	cycleSizes      []int
 	cycleSizesIndex int
 )
