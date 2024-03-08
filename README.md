@@ -7,7 +7,7 @@ This project was created to allow the original tntengine project to be follow mo
 >__An Infinite Key Encryption System.__    
 [Dr. Dobbs Journal Volume 9, Number 94, 1984](https://archive.org/details/1984-08-dr-dobbs-journal/page/44/mode/2up)
 
-___v1.6.0___   
+___v1.6.1___   
 - Removes the `CyclePermutations` array, which is no longer needed.
 - The code no longer randomizes the order of the machine, but instead leaves the placement of rotors and permutators the same as given in engineLayout (defaults to `rrprrprr`) but randomizes the order of the rotors and permutators.  This prevents things like `pprrrrrr` from occuring.
 - Changed how the rotor sizes are selected when updating the rotors.  It now selects the (number of rotors) largest sizes to maximize the number of bytes that can be encrypted before the psudo-random data repeats.  For the default `engineLayout`, 8.152525 * 10<sup>37</sup> bytes that can be encrypted before the psudo-random data repeats.  The **tnt2engine** (currently) supports up to 40 rotors, which would increase the peroid to 3.714144 * 10<sup>170</sup>.
