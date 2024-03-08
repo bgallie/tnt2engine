@@ -7,6 +7,23 @@ This project was created to allow the original tntengine project to be follow mo
 >__An Infinite Key Encryption System.__    
 [Dr. Dobbs Journal Volume 9, Number 94, 1984](https://archive.org/details/1984-08-dr-dobbs-journal/page/44/mode/2up)
 
+___v1.6.1___   
+This release removes the `CyclePermutations` array, which is no longer needed.
+
+___v1.6.0___   
+- The code no longer randomizes the order of the machine, but instead leaves the placement of rotors and permutators the same as given in engineLayout (defaults to `rrprrprr`) but randomizes the order of the rotors and permutators.  This prevents things like `pprrrrrr` from occuring.
+- Changed how the rotor sizes are selected when updating the rotors.  It now selects the (number of rotors) largest sizes to maximize the number of bytes that can be encrypted before the psudo-random data repeats.  For the default `engineLayout`, 8.152525 * 10<sup>37</sup> bytes that can be encrypted before the psudo-random data repeats.  The **tnt2engine** (currently) supports up to 40 rotors, which would increase the peroid to 3.714144 * 10<sup>170</sup>.
+- Changed the `sliceRotor()` and `getRotorBlock()` to operate at the block level instead of at the bit level.  This gives a good speed increase of those functions.  The `sliceRotor()` function is called 6 times when initializing the tntengine and `getRotorBlock()` many time when initializing the tnt2engine and is called 6 times for each 32 byte block in the file to be encrypted.   Here are the benchmark results:
+```
+goos: linux
+goarch: amd64
+cpu: AMD Ryzen 9 3900X 12-Core Processor
+=============================================================
+   OrigSliceRotor-8    375.2  ns/op     0 B/op    0 allocs/op
+    NewSliceRotor-8     65.04 ns/op     0 B/op    0 allocs/op
+OrigGetRotorBlock-8    717.9  ns/op    32 B/op    1 allocs/op
+ NewGetRotorBlock-8     55.55 ns/op    32 B/op    1 allocs/op
+```
 ___v1.5.1___   
 This release replaces the depreciated `NewUberJc1()` call with `jc1.UberJc1.New()` call.
 
