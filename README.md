@@ -7,11 +7,11 @@ This project was created to allow the original tntengine project to be follow mo
 >__An Infinite Key Encryption System.__    
 [Dr. Dobbs Journal Volume 9, Number 94, 1984](https://archive.org/details/1984-08-dr-dobbs-journal/page/44/mode/2up)
 
-___v1.6.2___
+___v1.6.3___
 - There is only one set of cycle sizes now: 61, 63, 65, 67; Which gives us 16,736,265 unique states for each permutator.  Also, after much thought, I decided that having multiple cycle sizes did not provide any benefit since the permutation table is generated (pseudo-)randomly and the order of the cycles is changed for each permutator.
 - Changed how the counter key is generated so that it is dependant on the secret key *and* the updated encryption machine, not the proforma encryption machine  This ensures that the counter key is different for each engine layout even if the same secret key is used.
 
-___v1.6.1___   
+___v1.6.2___   
 - Removes the `CyclePermutations` array, which is no longer needed.
 - The code no longer randomizes the order of the machine, but instead leaves the placement of rotors and permutators the same as given in engineLayout (defaults to `rrprrprr`) but randomizes the order of the rotors and permutators.  This prevents things like `pprrrrrr` from occurring.
 - Changed how the rotor sizes are selected when updating the rotors.  It now selects the (number of rotors) largest sizes to maximize the number of bytes that can be encrypted before the pseudo-random data repeats.  For the default `engineLayout`, 8.152525 * 10<sup>37</sup> bytes that can be encrypted before the pseudo-random data repeats.  The **tnt2engine** (currently) supports up to 40 rotors, which would increase the period to 3.714144 * 10<sup>170</sup>.
