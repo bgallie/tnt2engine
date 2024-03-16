@@ -60,9 +60,6 @@ func TestCounter_SetIndex(t *testing.T) {
 			}
 		})
 	}
-	var blk CipherBlock
-	tntMachine.left <- blk
-	<-tntMachine.right
 	tntMachine = *new(Tnt2Engine)
 }
 
@@ -89,9 +86,6 @@ func TestCounter_Index(t *testing.T) {
 			}
 		})
 	}
-	var blk CipherBlock
-	tntMachine.left <- blk
-	<-tntMachine.right
 	tntMachine = *new(Tnt2Engine)
 }
 
@@ -127,9 +121,6 @@ func TestCounter_ApplyF(t *testing.T) {
 			}
 		})
 	}
-	var blk CipherBlock
-	tntMachine.left <- blk
-	<-tntMachine.right
 	tntMachine = *new(Tnt2Engine)
 }
 
@@ -165,9 +156,6 @@ func TestCounter_ApplyG(t *testing.T) {
 			}
 		})
 	}
-	var blk CipherBlock
-	tntMachine.left <- blk
-	<-tntMachine.right
 	tntMachine = *new(Tnt2Engine)
 }
 

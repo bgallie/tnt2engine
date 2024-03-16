@@ -6,7 +6,6 @@ package tnt2engine
 // Define the random number generator using tnt2engine as the source.
 
 import (
-	"encoding/hex"
 	"fmt"
 	"os"
 )
@@ -144,7 +143,7 @@ func (rnd *Rand) Read(p []byte) (n int, err error) {
 	// bytes that are based on the secret key so that the same sequence
 	// will be generated.
 	if string(rnd.blk) == string(emptyBlk) {
-		cntrKeyBytes, _ := hex.DecodeString(rnd.tnt2Machine.cntrKey)
+		cntrKeyBytes := rnd.tnt2Machine.cntrKey[:]
 		cntrKeyBytes = jc1Key.XORKeyStream(cntrKeyBytes)
 		rnd.blk = make(CipherBlock, CipherBlockBytes)
 		_ = copy(rnd.blk[:], cntrKeyBytes)
