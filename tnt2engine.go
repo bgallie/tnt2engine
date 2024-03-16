@@ -265,7 +265,7 @@ func (e *Tnt2Engine) Init(secret []byte, proFormaFileName string) {
 	rCnt := countLayoutType('r')
 	pCnt := countLayoutType('p')
 	jc1Key = new(jc1.UberJc1).New(secret)
-	// Create an ecryption machine based on the proForma rotors and permutators.
+	// Create an encryption machine based on the proForma rotors and permutators.
 	var pfmReader io.Reader = nil
 	if len(proFormaFileName) != 0 {
 		in, err := os.Open(proFormaFileName)
@@ -276,14 +276,14 @@ func (e *Tnt2Engine) Init(secret []byte, proFormaFileName string) {
 	e.engine = *createProFormaMachine(pfmReader)
 	e.left, e.right = createEncryptMachine(e.engine...)
 	e.SetIndex(BigZero)
-	// Set up a counterKey based on the proforma encyption machine.
+	// Set up a counterKey based on the proforma encryption machine.
 	// It will be set up again once the new encryption machine is created.
 	e.cntrKey = make(CipherBlock, CipherBlockBytes)
 	blk := make(CipherBlock, CipherBlockBytes)
 	e.left <- jc1Key.XORKeyStream(blk)
 	nBlk := <-e.right
 	_ = copy(e.cntrKey, nBlk)
-	// Create a random number function [func(max int) int] that uses psudo-
+	// Create a random number function [func(max int) int] that uses pseudo-
 	// random data generated the proforma encryption machine.
 	random := new(Rand).New(e)
 	// Get the last _rCnt_ rotor sizes (to maximize the period of the generator).
@@ -323,7 +323,7 @@ func (e *Tnt2Engine) Init(secret []byte, proFormaFileName string) {
 		permutators[pIdx].Update(random)
 		pIdx++
 	}
-	// Now that we have created the new rotors and permutators from the proform
+	// Now that we have created the new rotors and permutators from the proforma
 	// machine, populate the Tnt2Engine with them using a random order for the
 	// rotors and the permutators (without changing the layout in engineLayout).
 	newMachine := make([]Crypter, len(EngineLayout)+1)
@@ -343,7 +343,7 @@ func (e *Tnt2Engine) Init(secret []byte, proFormaFileName string) {
 	newMachine[len(newMachine)-1] = counter
 	e.CloseCipherMachine()
 	e.engine = newMachine
-	// Encrypt the UberJc1 hash of the password using the generated enccryption
+	// Encrypt the UberJc1 hash of the password using the generated encryption
 	// machine.  This is used as a key to store the count of blocks already
 	// encrypted to use as a starting point for the encryption of the next message.
 	e.left, e.right = createEncryptMachine(e.engine...)
@@ -354,9 +354,9 @@ func (e *Tnt2Engine) Init(secret []byte, proFormaFileName string) {
 	e.CloseCipherMachine()
 }
 
-// BuildCiperMachine will create a "machine" to encrypt or decrypt data sent to the
-// left channel and outputed on the right channel for the Tnt2Engine.  The engineType
-// determines weither a encrypt machine or a decrypt machine will be created.
+// BuildCipherMachine will create a "machine" to encrypt or decrypt data sent to the
+// left channel and outputted on the right channel for the Tnt2Engine.  The engineType
+// determines wither a encrypt machine or a decrypt machine will be created.
 func (e *Tnt2Engine) BuildCipherMachine() {
 	switch e.engineType {
 	case "D":

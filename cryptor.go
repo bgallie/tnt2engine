@@ -25,7 +25,7 @@ var (
 )
 
 // CipherBlock is the data processed by the crypters (rotors and permutators).
-// It consistes of the length in bytes to process and the (32 bytes of) data to
+// It consists of the length in bytes to process and the (32 bytes of) data to
 // process.
 type CipherBlock []byte
 
