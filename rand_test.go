@@ -34,13 +34,13 @@ func TestNewRand(t *testing.T) {
 			name:  "NewRandTest 1",
 			args:  args{tntMachine},
 			want:  &Rand{tntMachine, CipherBlockBytes, emptyBlk},
-			wantK: "ab2677fa2eecca36541ea85fd8d871203383b898bb025b8ec8fd5f24719eee1c",
+			wantK: "8MyZ1wEtrXp1/krHycfE7jnplAlELSBzAPkLsnNPwLo",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tntMachine.cntrKey != tt.wantK {
-				t.Errorf("tntMachine.cntrKey = %v, want %v", tntMachine.cntrKey, tt.wantK)
+			if tntMachine.CounterKey() != tt.wantK {
+				t.Errorf("tntMachine.cntrKey = %v, want %v", tntMachine.CounterKey(), tt.wantK)
 			}
 			if got := NewRand(tt.args.src); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewRand() = %v, want %v", got, tt.want)
@@ -69,13 +69,13 @@ func TestNew(t *testing.T) {
 			name:  "NewTest 1",
 			args:  args{tntMachine},
 			want:  &Rand{tntMachine, CipherBlockBytes, emptyBlk},
-			wantK: "ab2677fa2eecca36541ea85fd8d871203383b898bb025b8ec8fd5f24719eee1c",
+			wantK: "8MyZ1wEtrXp1/krHycfE7jnplAlELSBzAPkLsnNPwLo",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tntMachine.cntrKey != tt.wantK {
-				t.Errorf("tntMachine.cntrKey = %v, want %v", tntMachine.cntrKey, tt.wantK)
+			if tntMachine.CounterKey() != tt.wantK {
+				t.Errorf("tntMachine.cntrKey = %v, want %v", tntMachine.CounterKey(), tt.wantK)
 			}
 			if got := new(Rand).New(tt.args.src); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("New() = %v, want %v", got, tt.want)
@@ -105,15 +105,15 @@ func TestRand_Intn(t *testing.T) {
 		{
 			name:  "Intn Test 1",
 			args:  args{1000},
-			want:  855,
-			wantK: "ab2677fa2eecca36541ea85fd8d871203383b898bb025b8ec8fd5f24719eee1c",
+			want:  694,
+			wantK: "8MyZ1wEtrXp1/krHycfE7jnplAlELSBzAPkLsnNPwLo",
 			wantR: &Rand{tntMachine, CipherBlockBytes, emptyBlk},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tntMachine.cntrKey != tt.wantK {
-				t.Errorf("tntMachine.cntrKey = %v, want %v", tntMachine.cntrKey, tt.wantK)
+			if tntMachine.CounterKey() != tt.wantK {
+				t.Errorf("tntMachine.cntrKey = %v, want %v", tntMachine.CounterKey(), tt.wantK)
 			}
 			if !reflect.DeepEqual(rnd, tt.wantR) {
 				t.Errorf("NewRand() = %v, want %v", rnd, tt.wantR)
@@ -146,15 +146,15 @@ func TestRand_Int63n(t *testing.T) {
 		{
 			name:  "Int63n Test 1",
 			args:  args{1000000000},
-			want:  156611855,
-			wantK: "ab2677fa2eecca36541ea85fd8d871203383b898bb025b8ec8fd5f24719eee1c",
+			want:  117654694,
+			wantK: "8MyZ1wEtrXp1/krHycfE7jnplAlELSBzAPkLsnNPwLo",
 			wantR: &Rand{tntMachine, CipherBlockBytes, emptyBlk},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tntMachine.cntrKey != tt.wantK {
-				t.Errorf("tntMachine.cntrKey = %v, want %v", tntMachine.cntrKey, tt.wantK)
+			if tntMachine.CounterKey() != tt.wantK {
+				t.Errorf("tntMachine.cntrKey = %v, want %v", tntMachine.CounterKey(), tt.wantK)
 			}
 			if !reflect.DeepEqual(rnd, tt.wantR) {
 				t.Errorf("New() = %v, want %v", rnd, tt.wantR)
@@ -186,35 +186,35 @@ func TestRand_Perm(t *testing.T) {
 		{
 			name:  "Prem Test 1",
 			args:  args{10},
-			want:  []int{3, 0, 8, 6, 7, 2, 9, 5, 1, 4},
-			wantK: "ab2677fa2eecca36541ea85fd8d871203383b898bb025b8ec8fd5f24719eee1c",
+			want:  []int{5, 0, 4, 1, 9, 6, 7, 2, 3, 8},
+			wantK: "8MyZ1wEtrXp1/krHycfE7jnplAlELSBzAPkLsnNPwLo",
 		}, {
 			name: "Prem Test 1",
 			args: args{256},
 			want: []int{
-				92, 214, 104, 48, 130, 202, 98, 35, 114, 213, 6, 75, 95, 155, 234, 117,
-				58, 217, 121, 0, 27, 67, 143, 77, 38, 59, 99, 50, 254, 132, 20, 93,
-				152, 139, 120, 15, 158, 53, 195, 60, 116, 63, 136, 200, 141, 40, 43, 145,
-				102, 89, 246, 42, 71, 125, 82, 8, 64, 2, 198, 164, 204, 81, 245, 180,
-				183, 127, 205, 224, 157, 122, 232, 1, 128, 182, 239, 225, 70, 11, 23, 162,
-				24, 219, 28, 163, 49, 55, 110, 47, 44, 237, 192, 147, 185, 196, 193, 170,
-				175, 222, 156, 74, 181, 4, 230, 253, 233, 207, 96, 194, 215, 161, 91, 167,
-				31, 146, 220, 144, 100, 153, 112, 13, 142, 19, 251, 39, 79, 94, 148, 179,
-				255, 131, 173, 84, 65, 150, 221, 149, 86, 72, 235, 223, 154, 203, 17, 16,
-				140, 184, 240, 212, 33, 68, 41, 160, 9, 252, 37, 30, 14, 243, 248, 197,
-				45, 165, 87, 90, 250, 216, 34, 36, 227, 177, 7, 76, 62, 5, 242, 206,
-				106, 78, 236, 209, 231, 3, 54, 26, 52, 85, 171, 12, 109, 97, 124, 56,
-				22, 176, 113, 244, 21, 119, 218, 188, 247, 178, 105, 151, 29, 10, 199, 174,
-				115, 103, 168, 138, 134, 51, 123, 249, 201, 169, 69, 83, 73, 137, 211, 186,
-				210, 80, 238, 108, 46, 189, 18, 107, 208, 159, 61, 25, 241, 190, 133, 118,
-				191, 166, 129, 111, 66, 101, 126, 32, 172, 187, 57, 88, 228, 229, 226, 135},
-			wantK: "ab2677fa2eecca36541ea85fd8d871203383b898bb025b8ec8fd5f24719eee1c",
+				134, 84, 98, 76, 50, 209, 141, 99, 89, 24, 68, 55, 181, 62, 78, 66,
+				164, 233, 96, 57, 30, 242, 94, 168, 186, 187, 12, 104, 34, 142, 194, 153,
+				3, 150, 179, 204, 43, 26, 212, 25, 126, 69, 2, 39, 102, 170, 23, 53,
+				234, 61, 173, 111, 247, 122, 77, 211, 19, 152, 110, 129, 90, 120, 198, 200,
+				27, 193, 243, 143, 37, 54, 42, 221, 210, 199, 156, 22, 125, 79, 133, 95,
+				56, 145, 228, 112, 139, 171, 220, 51, 166, 189, 241, 63, 117, 216, 118, 254,
+				213, 107, 132, 140, 154, 72, 36, 236, 114, 97, 188, 163, 1, 224, 227, 127,
+				7, 158, 100, 21, 190, 207, 0, 109, 131, 108, 251, 29, 255, 80, 203, 192,
+				41, 183, 174, 33, 230, 32, 149, 177, 138, 161, 9, 165, 155, 159, 101, 70,
+				148, 182, 28, 201, 232, 178, 176, 14, 81, 60, 85, 71, 13, 8, 87, 137,
+				64, 214, 169, 249, 246, 240, 128, 130, 73, 47, 65, 49, 180, 191, 208, 38,
+				115, 226, 136, 74, 185, 217, 175, 75, 58, 219, 10, 172, 196, 5, 119, 35,
+				105, 48, 4, 93, 151, 250, 44, 225, 160, 103, 88, 46, 215, 157, 184, 239,
+				205, 15, 162, 91, 45, 116, 167, 83, 223, 16, 92, 59, 113, 252, 206, 222,
+				123, 229, 238, 86, 106, 237, 218, 253, 40, 195, 197, 202, 11, 67, 20, 245,
+				147, 248, 231, 17, 31, 82, 121, 146, 235, 135, 18, 6, 244, 144, 124, 52},
+			wantK: "8MyZ1wEtrXp1/krHycfE7jnplAlELSBzAPkLsnNPwLo",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tntMachine.cntrKey != tt.wantK {
-				t.Errorf("tntMachine.cntrKey = %v, want %v", tntMachine.cntrKey, tt.wantK)
+			if tntMachine.CounterKey() != tt.wantK {
+				t.Errorf("tntMachine.cntrKey = %v, want %v", tntMachine.CounterKey(), tt.wantK)
 			}
 			if got := rnd.Perm(tt.args.n); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Rand.Perm() = %v, want %v", got, tt.want)
@@ -246,19 +246,18 @@ func TestRand_Read(t *testing.T) {
 			name: "Read test 1",
 			args: args{make([]byte, 36)},
 			want: []byte{
-				255, 1, 190, 15, 162, 173, 77, 15, 188, 20,
-				132, 243, 237, 246, 4, 49, 234, 241, 119, 54,
-				14, 6, 223, 131, 169, 200, 208, 236, 69, 16,
-				126, 146, 233, 246, 104, 252},
+				10, 84, 10, 4, 202, 145, 128, 166, 213, 202, 0, 123, 58, 250, 108, 83,
+				54, 175, 122, 26, 36, 72, 197, 185, 158, 47, 241, 64, 124, 176, 71, 230,
+				243, 129, 174, 233},
 			wantN:   36,
 			wantErr: false,
-			wantK:   "ab2677fa2eecca36541ea85fd8d871203383b898bb025b8ec8fd5f24719eee1c",
+			wantK:   "8MyZ1wEtrXp1/krHycfE7jnplAlELSBzAPkLsnNPwLo",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if tntMachine.cntrKey != tt.wantK {
-				t.Errorf("tntMachine.cntrKey = %v, want %v", tntMachine.cntrKey, tt.wantK)
+			if tntMachine.CounterKey() != tt.wantK {
+				t.Errorf("tntMachine.cntrKey = %v, want %v", tntMachine.CounterKey(), tt.wantK)
 			}
 			gotN, err := rnd.Read(tt.args.p)
 			if (err != nil) != tt.wantErr {

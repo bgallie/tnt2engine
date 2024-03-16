@@ -7,7 +7,7 @@ package tnt2engine
 
 import (
 	"bufio"
-	"encoding/hex"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -17,7 +17,6 @@ import (
 	"strings"
 
 	"github.com/bgallie/jc1"
-	"golang.org/x/crypto/sha3"
 )
 
 var (
@@ -174,7 +173,7 @@ type Tnt2Engine struct {
 	engineType    string // "E)ncrypt" or "D)ecrypt"
 	engine        []Crypter
 	left, right   chan CipherBlock
-	cntrKey       string
+	cntrKey       CipherBlock
 	maximalStates *big.Int
 }
 
@@ -188,11 +187,11 @@ func (e *Tnt2Engine) Right() chan CipherBlock {
 	return e.right
 }
 
-// CounterKey is a getter that returns the SHAKE256 hash for the secret key.
+// CounterKey is a getter that returns the base64 encoded encrypted secret key.
 // This is used to set/retrieve that next block to use in encrypting data
 // from the file used to save the next block to use..
 func (e *Tnt2Engine) CounterKey() string {
-	return e.cntrKey
+	return base64.RawStdEncoding.EncodeToString(e.cntrKey)
 }
 
 // Index is a getter that returns the block number of the next block to be
@@ -276,33 +275,19 @@ func (e *Tnt2Engine) Init(secret []byte, proFormaFileName string) {
 	}
 	e.engine = *createProFormaMachine(pfmReader)
 	e.left, e.right = createEncryptMachine(e.engine...)
-	// Get a SHA-3 hash of the encryption key.  This is used as a key to store
-	// the count of blocks already encrypted to use as a starting point for the
-	// encryption of the next message.
-	k := make([]byte, 1024)
-	blk := make(CipherBlock, CipherBlockBytes)
-	h := blk[:]
-	d := sha3.NewShake256()
-	d.Write(jc1Key.XORKeyStream(k))
-	d.Read(h)
-	// Encrypt the hash starting at block 1234567890 (no good reason for this number)
-	// to make it specific to the proForma machine used.
-	iCnt, _ := new(big.Int).SetString("1234567890", 10)
-	e.SetIndex(iCnt)
-	e.left <- blk
-	blk = <-e.right
-	e.cntrKey = hex.EncodeToString(blk[:])
 	e.SetIndex(BigZero)
+	// Set up a counterKey based on the proforma encyption machine.
+	// It will be set up again once the new encryption machine is created.
+	e.cntrKey = make(CipherBlock, CipherBlockBytes)
+	blk := make(CipherBlock, CipherBlockBytes)
+	e.left <- jc1Key.XORKeyStream(blk)
+	nBlk := <-e.right
+	_ = copy(e.cntrKey, nBlk)
 	// Create a random number function [func(max int) int] that uses psudo-
 	// random data generated the proforma encryption machine.
 	random := new(Rand).New(e)
 	// Get the last _rCnt_ rotor sizes (to maximize the period of the generator).
 	rotorSizesIndex = len(RotorSizes) - 1
-	// Create a permutaion of cycle sizes indices to allow picking the cycle
-	// sizes in a random order based on the key.
-	cycleSizes = random.Perm(len(CycleSizes))[0:2]
-	cycleSizesIndex = 0
-	// get the number of rotors and permutators
 	rIdx := 0
 	pIdx := 0
 	// Update the rotors and permutators in a very non-linear fashion.
@@ -356,7 +341,17 @@ func (e *Tnt2Engine) Init(secret []byte, proFormaFileName string) {
 	}
 	counter.SetIndex(BigZero)
 	newMachine[len(newMachine)-1] = counter
+	e.CloseCipherMachine()
 	e.engine = newMachine
+	// Encrypt the UberJc1 hash of the password using the generated enccryption
+	// machine.  This is used as a key to store the count of blocks already
+	// encrypted to use as a starting point for the encryption of the next message.
+	e.left, e.right = createEncryptMachine(e.engine...)
+	e.left <- jc1Key.XORKeyStream(blk)
+	nBlk = <-e.right
+	_ = copy(e.cntrKey, nBlk)
+	counter.SetIndex(BigZero)
+	e.CloseCipherMachine()
 }
 
 // BuildCiperMachine will create a "machine" to encrypt or decrypt data sent to the

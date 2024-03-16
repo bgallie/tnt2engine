@@ -22,17 +22,7 @@ var (
 	//      2.  The cycles are relatively prime to each other. (This maximizes
 	//          the number of unique states the permutation can be in for the
 	//          given cycles).
-	CycleSizes = [...][NumberPermutationCycles]int{
-		{61, 63, 65, 67}, // Number of unique states: 16,736,265
-		{53, 65, 67, 71}, // Number of unique states: 16,387,685
-		{55, 57, 71, 73}, // Number of unique states: 16,248,705
-		{53, 61, 63, 79}, // Number of unique states: 16,090,641
-		{49, 51, 73, 83}, // Number of unique states: 15,141,441
-		{47, 53, 73, 83}, // Number of unique states: 15,092,969
-		{47, 53, 71, 85}, // Number of unique states: 15,033,185
-		{43, 57, 73, 83}} // Number of unique states: 14,850,609
-	cycleSizes      []int
-	cycleSizesIndex int
+	CycleSizes = [NumberPermutationCycles]int{61, 63, 65, 67} // Number of unique states: 16,736,265
 )
 
 // Cycle describes a cycle for the permutator so it can adjust the permutation
@@ -94,9 +84,8 @@ func (p *Permutator) Update(random *Rand) {
 	cycles := make([]int, NumberPermutationCycles)
 	randi := random.Perm(NumberPermutationCycles)
 	for idx, val := range randi {
-		cycles[idx] = CycleSizes[cycleSizes[cycleSizesIndex]][val]
+		cycles[idx] = CycleSizes[val]
 	}
-	cycleSizesIndex = (cycleSizesIndex + 1) % len(cycleSizes)
 	// update p.Cycles based on the new cycle sizes
 	if len(p.Cycles) == 0 {
 		p.Cycles = make([]Cycle, NumberPermutationCycles)
