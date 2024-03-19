@@ -7,6 +7,9 @@ This project was created to allow the original tntengine project to be follow mo
 >__An Infinite Key Encryption System.__    
 [Dr. Dobbs Journal Volume 9, Number 94, 1984](https://archive.org/details/1984-08-dr-dobbs-journal/page/44/mode/2up)
 
+___v1.6.4___
+- The calculation of the `maximalStates` did not include any additional rotors and permutators causing the calculated `maximalStates` to be the same no matter the change to the `engineLayout` value.  This release corrects this issue.
+
 ___v1.6.3___
 - There is only one set of cycle sizes now: 61, 63, 65, 67; Which gives us 16,736,265 unique states for each permutator.  Also, after much thought, I decided that having multiple cycle sizes did not provide any benefit since the permutation table is generated (pseudo-)randomly and the order of the cycles is changed for each permutator.
 - Changed how the counter key is generated so that it is dependant on the secret key *and* the updated encryption machine, not the proforma encryption machine  This ensures that the counter key is different for each engine layout even if the same secret key is used.
