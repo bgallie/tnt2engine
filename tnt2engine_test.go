@@ -93,6 +93,53 @@ func TestTnt2Engine_CounterKey(t *testing.T) {
 	}
 }
 
+func TestTnt2Engine_EngineLayout(t *testing.T) {
+	var tnt2Machine Tnt2Engine
+	wantCk1, _ := new(big.Int).SetString("1121232500564085", 10)
+	wantCk2, _ := new(big.Int).SetString("30454485778361745021018262743431225993878339390384791650688197411901522908808158937416750549642045853215625", 10)
+	tests := []struct {
+		name                 string
+		key                  string
+		engineLayout         string
+		wantNumberOfCryptors int
+		wantMaximalStates    *big.Int
+		wantCounterKey       string
+	}{
+		{
+			name:                 "tel1",
+			key:                  "SecretKey",
+			engineLayout:         "rpr",
+			wantNumberOfCryptors: 4,
+			wantMaximalStates:    wantCk1,
+			wantCounterKey:       "7owNGw7Ggr+4icWgProi33p1KZiFYvKjBaEw9o1k8Ag",
+		},
+		{
+			name:                 "tel2",
+			key:                  "SecretKey",
+			engineLayout:         "rrrprrrprrrprrrprrrprrr",
+			wantNumberOfCryptors: 24,
+			wantMaximalStates:    wantCk2,
+			wantCounterKey:       "ZbMkG5ILrMOgF4BVOjND7n+U/nFBzB/R/wbXN0crrDM",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			EngineLayout = tt.engineLayout
+			tnt2Machine.Init([]byte(tt.key), "")
+			if got := len(tnt2Machine.engine); got != tt.wantNumberOfCryptors {
+				t.Errorf("len(Tnt2Engine.engine) = %v, want %v", got, tt.wantNumberOfCryptors)
+			}
+			if got := tnt2Machine.maximalStates; got.Cmp(tt.wantMaximalStates) != 0 {
+				t.Errorf("tnt2Engine.maximalStates = %s, want %s", got, tt.wantMaximalStates)
+			}
+			if got := tnt2Machine.CounterKey(); got != tt.wantCounterKey {
+				t.Errorf("Tnt2Engine.CounterKey() = %v, want %v", got, tt.wantCounterKey)
+			}
+		})
+	}
+	EngineLayout = "rrprrprr"
+}
+
 func TestTnt2Engine_Index(t *testing.T) {
 	var tnt2Machine Tnt2Engine
 	tnt2Machine.Init([]byte("SecretKey"), "")
@@ -691,7 +738,7 @@ func Test_createProFormaMachine(t *testing.T) {
 			want: &[]Crypter{proFormaRotors[0], proFormaRotors[1], proFormPermutators[0], proFormaRotors[2], proFormaRotors[3], proFormPermutators[1], proFormaRotors[4], proFormaRotors[5]},
 		},
 		{
-			name: "tcpfm1",
+			name: "tcpfm2",
 			args: args{pfmReader: bufio.NewReader(proFormaFile)},
 			want: &[]Crypter{
 				new(Rotor).New(1783, 610, 1171, []byte{

@@ -120,19 +120,25 @@ func (rnd *Rand) Uint64() uint64 {
 
 // Perm returns, as a slice of n ints, a pseudo-random permutation of the integers
 // in the half-open interval [0,n).
-func (rnd *Rand) Perm(n int) []int {
-	res := make([]int, n)
-
-	for i := range res {
-		res[i] = i
+func (rnd *Rand) Perm(n int) (res []int) {
+	if n < 0 {
+		panic(fmt.Sprintf("Perm called with a negative argument [%d]", n))
 	}
-
+	res = make([]int, n)
+	if n > 0 {
+		if n == 1 {
+			res[0] = 0
+		} else {
+			for i := range res {
+				res[i] = i
+			}
+		}
+	}
 	for i := (n - 1); i > 0; i-- {
 		j := rnd.Intn(i)
 		res[i], res[j] = res[j], res[i]
 	}
-
-	return res
+	return
 }
 
 // Read generates len(p) random bytes and writes them into p. It

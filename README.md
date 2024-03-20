@@ -9,6 +9,7 @@ This project was created to allow the original tntengine project to be follow mo
 
 ___v1.6.4___
 - The calculation of the `maximalStates` did not include any additional rotors and permutators causing the calculated `maximalStates` to be the same no matter the change to the `engineLayout` value.  This release corrects this issue.
+- Fixed an issue that did not handle an `engineLayout` that had less cryptors then the default `engineLayout` of 'rrprrprr'.
 
 ___v1.6.3___
 - There is only one set of cycle sizes now: 61, 63, 65, 67; Which gives us 16,736,265 unique states for each permutator.  Also, after much thought, I decided that having multiple cycle sizes did not provide any benefit since the permutation table is generated (pseudo-)randomly and the order of the cycles is changed for each permutator.

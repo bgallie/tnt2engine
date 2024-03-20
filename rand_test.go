@@ -184,12 +184,24 @@ func TestRand_Perm(t *testing.T) {
 		wantK string
 	}{
 		{
-			name:  "Prem Test 1",
+			name:  "Perm Test 1",
+			args:  args{0},
+			want:  []int{},
+			wantK: "8MyZ1wEtrXp1/krHycfE7jnplAlELSBzAPkLsnNPwLo",
+		},
+		{
+			name:  "Perm Test 2",
+			args:  args{1},
+			want:  []int{0},
+			wantK: "8MyZ1wEtrXp1/krHycfE7jnplAlELSBzAPkLsnNPwLo",
+		},
+		{
+			name:  "Perm Test 3",
 			args:  args{10},
 			want:  []int{5, 0, 4, 1, 9, 6, 7, 2, 3, 8},
 			wantK: "8MyZ1wEtrXp1/krHycfE7jnplAlELSBzAPkLsnNPwLo",
 		}, {
-			name: "Prem Test 1",
+			name: "Perm Test 4",
 			args: args{256},
 			want: []int{
 				134, 84, 98, 76, 50, 209, 141, 99, 89, 24, 68, 55, 181, 62, 78, 66,

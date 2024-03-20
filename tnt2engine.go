@@ -300,13 +300,17 @@ func (e *Tnt2Engine) Init(secret []byte, proFormaFileName string) {
 		default:
 			fmt.Fprintf(os.Stderr, "Unknown machine: %v\n", v)
 		case *Rotor:
-			e.maximalStates = e.maximalStates.Mul(e.maximalStates, big.NewInt(int64(machine.(*Rotor).Size)))
-			rotors[rIdx] = machine
-			rIdx++
+			if rIdx < rCnt {
+				e.maximalStates = e.maximalStates.Mul(e.maximalStates, big.NewInt(int64(machine.(*Rotor).Size)))
+				rotors[rIdx] = machine
+				rIdx++
+			}
 		case *Permutator:
-			e.maximalStates = e.maximalStates.Mul(e.maximalStates, big.NewInt(int64(machine.(*Permutator).MaximalStates)))
-			permutators[pIdx] = machine
-			pIdx++
+			if pIdx < pCnt {
+				e.maximalStates = e.maximalStates.Mul(e.maximalStates, big.NewInt(int64(machine.(*Permutator).MaximalStates)))
+				permutators[pIdx] = machine
+				pIdx++
+			}
 		case *Counter:
 			machine.SetIndex(BigZero)
 		}
@@ -315,12 +319,14 @@ func (e *Tnt2Engine) Init(secret []byte, proFormaFileName string) {
 	for rIdx < rCnt {
 		rotors[rIdx] = new(Rotor)
 		rotors[rIdx].Update(random)
+		e.maximalStates = e.maximalStates.Mul(e.maximalStates, big.NewInt(int64(rotors[rIdx].(*Rotor).Size)))
 		rIdx++
 	}
 	// Update any additional permutators
 	for pIdx < pCnt {
 		permutators[pIdx] = new(Permutator)
 		permutators[pIdx].Update(random)
+		e.maximalStates = e.maximalStates.Mul(e.maximalStates, big.NewInt(int64(permutators[pIdx].(*Permutator).MaximalStates)))
 		pIdx++
 	}
 	// Now that we have created the new rotors and permutators from the proforma
